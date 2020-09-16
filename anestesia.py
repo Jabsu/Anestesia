@@ -1,4 +1,5 @@
 import sys
+import os
 import re
 import random
 import importlib
@@ -12,6 +13,17 @@ import config
 import universal
 from helpers import Scheduler
 
+# Check if the log folder exists and if not, try to create it.
+dir_name = os.path.dirname(config.LOG_FILE)
+if not os.path.exists(dir_name):
+    print(f"Folder '{dir_name}' doesn't exist. Attempting to create it.")
+    try:
+        os.makedirs(dir_name)
+    except Exception as e:
+        print(f"Unfortunately, creating such a folder is nigh impossible: {e}")
+        raise
+    else:
+        print(f'Log folder created succesfully!')
 
 # Initialize logging.
 log.basicConfig(
