@@ -66,7 +66,7 @@ class Main():
         
     
     async def spam_to_channels(self):
-       for chan in self.channels.replace(' ', '').split(','):
+        for chan in self.channels.replace(' ', '').split(','):
             self.channel = self.client.get_channel(int(chan))
             if not self.channel:
                 log.error('No such channel: %s', chan)
