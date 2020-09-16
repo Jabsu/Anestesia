@@ -31,10 +31,10 @@ LOGGING_LEVEL = 'DEBUG'
 # API-wrapperin (discord.py) lokitustaso
 WRAPPER_LOGGING_LEVEL = 'INFO'
 
-# Tapahtumaloki
+# Lokitiedosto
 LOG_FILE = 'logs/events.log'
 
-# Keskusteluloki (jätä tyhjäksi, jos et halua tallentaa lokia)
+# Keskustelulokitiedosto (jätä tyhjäksi, jos et halua tallentaa lokia)
 CHAT_LOG = '$server$-$channel$.log'
 
 # Keskustelulokiformaatti (mirc, irssi)

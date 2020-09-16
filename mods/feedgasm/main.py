@@ -135,7 +135,7 @@ class Main():
         if not self.init_scraper(**kwargs):
             return
         
-        log.debug('Requesting %s...', self.url)
+        log.debug('Requesting %s', self.url)
         soup = await self.make_soup()
         items = soup.find_all('li', class_='list-item cartoon')
        
