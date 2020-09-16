@@ -23,10 +23,9 @@
         - ✅ Kanavahistoriavertailun korvaaminen SQLite-tietokannalla
         - ✅ Väriasetus
         - ⬜ Feedikäsittelijöiden erillistäminen omiksi moduuleiksi?
-        - ⬜ Feedispesifit kanavaulostukset
-        - Kaavinta ja tallennus 
+        - Kaavinta, tallennus ja ulostus
             - ✅ Helsingin Sanomien sarjakuvat
-            - ⬜ bigbrother.fi/uutiset
+            - ✅ bigbrother.fi/uutiset
             - ⬜ RSS
 - Suunnitteilla
     - ⬜ Discordin lyhentämien embed-otsikoiden *epälyhentäminen* (sen sijaan että tehtäisiin uusi embed, spämmätään vain otsikko)
