@@ -44,7 +44,8 @@ class DatabaseHandling:
         for n, cols in self.publications.items():
             values = ''
             for data in cols.values():
-                data = data.replace('"', "”")
+                if data: 
+                    data.replace('"', "”")
                 values += f'"{data}", '
             sql = sql_insert.format(self.table, columns.rstrip(', '), values.rstrip(', '))
             self.session.alter(sql)
