@@ -21,14 +21,14 @@ IGNORE_INTERVALS_ON_LAUNCH = True
 # (True/False)
 IGNORE_INTERVALS_ON_RELOAD = False
 
-# Botin lokitustaso (mitä matalampi taso, sitä enemmän ilmoituksia)
+# Botin loggaustaso (mitä matalampi taso, sitä enemmän ilmoituksia)
 # - TASO 1 = DEBUG
 # - TASO 2 = INFO
 # - TASO 3 = WARNING
 # - TASO 4 = ERROR
 LOGGING_LEVEL = 'DEBUG'
 
-# API-wrapperin (discord.py) lokitustaso
+# API-wrapperin (discord.py) loggaustaso
 WRAPPER_LOGGING_LEVEL = 'INFO'
 
 # Lokitiedosto
