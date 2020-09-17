@@ -13,7 +13,7 @@ import config
 import universal
 from helpers import Scheduler
 
-# Check if the log folder exists and if not, try to create it.
+# Check if "config.LOG_FILE" folder exists and if not, try to create it.
 dir_name = os.path.dirname(config.LOG_FILE)
 if not os.path.exists(dir_name):
     print(f"Folder '{dir_name}' doesn't exist. Attempting to create it.")
@@ -25,18 +25,6 @@ if not os.path.exists(dir_name):
     else:
         print(f'Log folder created succesfully!')
 
-# Initialize logging.
-log.basicConfig(
-    level=log.getLevelName(config.LOGGING_LEVEL),
-    format="%(asctime)s [%(module)-10.10s] [%(funcName)-20.20s] [%(levelname)-8.8s]  %(message)s",
-    datefmt="%d/%m/%Y %H:%M:%S",
-    handlers=[
-        log.FileHandler(config.LOG_FILE, encoding='utf-8'),
-        log.StreamHandler()
-    ]
-)
-log.getLogger("discord").setLevel(log.getLevelName(config.WRAPPER_LOGGING_LEVEL))
-
 # Initialize global variables.
 universal.init()
 
@@ -45,6 +33,8 @@ class Bot(discord.Client):
     '''Das bot.'''
     
     def load_modules(self):
+        '''Load components.'''
+        
         for module in config.COMPONENTS:
             try:
                 exec(f'import {module}')
@@ -52,6 +42,21 @@ class Bot(discord.Client):
                 log.exception('Failed to load module %s!', module)
             else:
                 log.info('Module %s was loaded successfully!', module)
+    
+    
+    def initialize_logging(self):
+        '''Initialize logging.'''
+        
+        log.basicConfig(
+            level=log.getLevelName(config.LOGGING_LEVEL),
+            format="%(asctime)s [%(module)-10.10s] [%(funcName)-20.20s] [%(levelname)-8.8s]  %(message)s",
+            datefmt="%d/%m/%Y %H:%M:%S",
+            handlers=[
+                log.FileHandler(config.LOG_FILE, encoding='utf-8'),
+                log.StreamHandler()
+            ]
+        )
+        log.getLogger("discord").setLevel(log.getLevelName(config.WRAPPER_LOGGING_LEVEL))
     
     
     async def on_ready(self):
@@ -94,6 +99,7 @@ class Bot(discord.Client):
                 f':ok_hand::skin-tone-{random.randint(1,5)}: Komponentit ja konfiguroinnit uudelleenladattu.')
             
             self.schedules.stop()
+            self.initialize_logging()
             if config.IGNORE_INTERVALS_ON_RELOAD:
                 universal.first_run = True
             else:
@@ -157,5 +163,6 @@ class Bot(discord.Client):
     
 universal.client = Bot()
 client = universal.client
+client.initialize_logging()
 client.load_modules()
 client.run(config.BOT_TOKEN)
