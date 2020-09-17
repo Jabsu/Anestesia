@@ -59,7 +59,7 @@ for table, settings in config.FEEDS.items():
     try: 
         settings['show_desc']
     except:
-        settings['show_desc'] = False
+        settings['show_desc'] = True
     try: 
         settings['days']
     except: 
