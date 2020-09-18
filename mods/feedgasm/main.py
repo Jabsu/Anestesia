@@ -185,11 +185,13 @@ class Main():
             
             try:
                 title = soup.find('meta', property='og:title').get('content')
+                title = title.replace('"', "”")
             except:
                 log.warning('No title found for %s', href)
                 title = 'Ei otsikkoa'
             try:
                 desc = soup.find('meta', property='og:description').get('content')
+                desc = desc.replace('"', "”")
             except:
                 desc = False
             try:
