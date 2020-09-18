@@ -19,17 +19,20 @@ class Database:
             setattr(self, key, value)
         self.conn = sqlite3.connect(self.db)
     
+    
     def alter(self, code):
         ret = self.execute(code)
         if not ret:
             self.conn.commit()
         return ret
         
+    
     def retrieve(self, code):
         ret = self.execute(code)
         if not ret: 
             ret = self.cur.fetchall()
         return ret 
+    
     
     def execute(self, code):
         self.cur = self.conn.cursor()
@@ -38,10 +41,11 @@ class Database:
         except sqlite3.OperationalError as e:
             
             log.error('%s: SQLite error: %s', self.db, e)
-            return f'error: {str(e)}'
+            return f'SQLite error: {str(e)}'
         else:
             return None
         
+    
     def close(self):
         self.conn.close()
 
@@ -77,11 +81,13 @@ class Fetch:
             parser = 'html.parser'
         return bs(self.content, parser)
     
+    
     def set_cookies(self):
         self.jar = requests.cookies.RequestsCookieJar()
         for n, cookies in self.cookies:
             self.jar.set(cookies)
 
+    
     async def request(self):
         
         try:
@@ -118,12 +124,14 @@ class Scheduler:
         self.tasks = []
         self.client = universal.client
     
+    
     async def log_exceptions(self, awaitable):
         try:
             return await awaitable
         except Exception:
             log.exception("An unhandled exception just happened with a scheduled task!")
         
+    
     async def schedule(self, met, args):
         while True:
             if universal.first_run and config.IGNORE_INTERVALS_ON_LAUNCH: 
@@ -140,6 +148,7 @@ class Scheduler:
             if universal.first_run:
                 universal.first_run = False
 
+    
     async def run_tasks(self):
         for e, l in universal.schedules.items():
             mod, args = l

@@ -3,11 +3,13 @@ from helpers import Database
 import config
 
 class DatabaseHandling:
+    
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
         self.db_name = config.FEEDGASM_DATABASE
         self.session = Database(db=self.db_name)
+    
     
     def create_table(self):
         
@@ -21,6 +23,7 @@ class DatabaseHandling:
         if self.row_limit:
             self.create_row_trigger()
         
+    
     def create_row_trigger(self):
         log.debug('%s: Row limit set to %d, creating trigger.', self.db_name, self.row_limit)
         sql = f"""CREATE TRIGGER row_limit
@@ -41,15 +44,21 @@ class DatabaseHandling:
         for c in self.sql_columns:
             columns += f'{c}, '
         
-        for n, cols in self.publications.items():
+        pubs = self.publications.copy()
+        for n, cols in pubs:
             values = ''
             for data in cols.values():
                 if data: 
                     data.replace('"', "”")
                 values += f'"{data}", '
             sql = sql_insert.format(self.table, columns.rstrip(', '), values.rstrip(', '))
-            self.session.alter(sql)
+            ret = self.session.alter(sql)
+            
+            if 'SQLite error' in ret:
+                self.publications.pop(n)
+                log.warning('%s: A publication was ignored because of SQLite insertion error.', self.table)
         
+    
     def iterate_columns(self):
 
         sql_select = "SELECT {0} FROM '{1}' WHERE {0} = '{2}'"
