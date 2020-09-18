@@ -45,7 +45,7 @@ class DatabaseHandling:
             columns += f'{c}, '
         
         pubs = self.publications.copy()
-        for n, cols in pubs:
+        for n, cols in pubs.items():
             values = ''
             for data in cols.values():
                 if data: 
@@ -54,9 +54,10 @@ class DatabaseHandling:
             sql = sql_insert.format(self.table, columns.rstrip(', '), values.rstrip(', '))
             ret = self.session.alter(sql)
             
-            if 'SQLite error' in ret:
-                self.publications.pop(n)
-                log.warning('%s: A publication was ignored because of SQLite insertion error.', self.table)
+            if ret:
+                if 'SQLite error' in ret:
+                    self.publications.pop(n)
+                    log.warning('%s: A publication was ignored because of SQLite insertion error.', self.table)
         
     
     def iterate_columns(self):
