@@ -39,25 +39,30 @@ class DatabaseHandling:
         
 
     def insert(self):
-        sql_insert = "INSERT INTO '{}' ({}) VALUES ({})"
-        columns = ''
+        
+        code = "INSERT INTO '{}' ({}) VALUES ({})"
+        cols = []
         for c in self.sql_columns:
-            columns += f'{c}, '
+            cols.append(c)
+        
+        columns = ', '.join(cols)
+        question_marks = ','.join('?' * len(cols))
         
         pubs = self.publications.copy()
         for n, cols in pubs.items():
-            values = ''
+            values = []
             for data in cols.values():
-                if data: 
-                    data.replace('"', "”")
-                values += f'"{data}", '
-            sql = sql_insert.format(self.table, columns.rstrip(', '), values.rstrip(', '))
-            ret = self.session.alter(sql)
+                values.append(data)
+            print(f'Values: {values}')
+            code = code.format(self.table, columns, question_marks)
+            print(f'Code: {code}')
+            ret = self.session.alter(code, values)
             
             if ret:
                 if 'SQLite error' in ret:
                     self.publications.pop(n)
-                    log.warning('%s: A publication was ignored because of SQLite insertion error.', self.table)
+                    log.warning(
+                        '%s: A publication was ignored because of SQLite insertion error.', self.table)
         
     
     def iterate_columns(self):

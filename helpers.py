@@ -20,26 +20,28 @@ class Database:
         self.conn = sqlite3.connect(self.db)
     
     
-    def alter(self, code):
-        ret = self.execute(code)
+    def alter(self, code, params=None):
+        ret = self.execute(code, params)
         if not ret:
             self.conn.commit()
         return ret
         
     
-    def retrieve(self, code):
-        ret = self.execute(code)
+    def retrieve(self, code, params=None):
+        ret = self.execute(code, params)
         if not ret: 
             ret = self.cur.fetchall()
         return ret 
     
     
-    def execute(self, code):
+    def execute(self, code, params=None):
         self.cur = self.conn.cursor()
         try:
-            self.cur.execute(code)
+            if params:
+                self.cur.execute(code, params)
+            else:
+                self.cur.execute(code)
         except sqlite3.OperationalError as e:
-            
             log.error('%s: SQLite error: %s', self.db, e)
             return f'SQLite error: {str(e)}'
         else:
