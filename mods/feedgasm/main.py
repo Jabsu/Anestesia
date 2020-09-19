@@ -185,13 +185,13 @@ class Main():
             
             try:
                 title = soup.find('meta', property='og:title').get('content')
-                title = title.replace('"', "”")
+                # title = title.replace('"', "”")
             except:
                 log.warning('No title found for %s', href)
                 title = 'Ei otsikkoa'
             try:
                 desc = soup.find('meta', property='og:description').get('content')
-                desc = desc.replace('"', "”")
+                # desc = desc.replace('"', "”")
             except:
                 desc = False
             try:
@@ -253,8 +253,6 @@ class Main():
                     pass
                 try: img = self.soup.find('meta', property='og:image').get('content')
                 except Exception as e: 
-                    # print(self.url)
-                    # print(e)
                     if self.reqImage: continue
                     else: img = False
                 publ[self.item_count] = {'link': link, 'title': title, 'desc': desc, 'img': img}

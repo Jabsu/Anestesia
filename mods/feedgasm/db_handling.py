@@ -53,9 +53,7 @@ class DatabaseHandling:
             values = []
             for data in cols.values():
                 values.append(data)
-            print(f'Values: {values}')
             code = code.format(self.table, columns, question_marks)
-            print(f'Code: {code}')
             ret = self.session.alter(code, values)
             
             if ret:
