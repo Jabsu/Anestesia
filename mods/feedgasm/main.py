@@ -1,6 +1,8 @@
 import os 
-import time 
-import random 
+import sys
+import time
+import random
+import importlib
 import re 
 import logging as log
 
@@ -13,11 +15,15 @@ import universal
 from . import set_defaults
 from .db_handling import DatabaseHandling
 
+importlib.reload(sys.modules['mods.feedgasm.set_defaults'])
 
 class Main():
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
+        
+        
+        
         self.client = universal.client
         self.sql_columns = {
             'title': 'TEXT', 
@@ -27,7 +33,7 @@ class Main():
             'footer': 'TEXT',
         }
         self.publications = {}
-      
+
       
     def valid_hours(self):
         ret = True
@@ -171,7 +177,7 @@ class Main():
         if not self.init_scraper(**kwargs):
             return
         
-        log.debug('Requesting %s', self.url)
+        log.debug('%s: Requesting %s', self.table, self.url)
         soup = await self.make_soup()
         items = soup.find_all('article')
                 

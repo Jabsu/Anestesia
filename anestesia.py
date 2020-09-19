@@ -86,6 +86,12 @@ class Bot(discord.Client):
             except Exception as e:
                 log.exception('Failed to load config.py!')
                 await message.channel.send(f':warning: Konfigurointien lataaminen epäonnistui: `{e}`')
+            try:
+                importlib.reload(sys.modules['helpers'])
+                log.info('helpers.py loaded successfully.')
+            except Exception as e:
+                log.exception('Failed to load helpers.py!')
+                await message.channel.send(f':warning: helpers.py-moduulin lataaminen epäonnistui: `{e}`')
             for module in config.COMPONENTS:
                 try:
                     importlib.reload(sys.modules[module])

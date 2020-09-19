@@ -5,7 +5,6 @@ import config
 import universal
 
 mod_file = 'mods.feedgasm.main'
-#  + os.path.basename(__file__).split('.')[0]
 
 n = 0
 for table, settings in config.FEEDS.items():
