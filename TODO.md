@@ -3,10 +3,11 @@
 ## Botti
 - ✅ Refaktorointi ja discord.py 1.0 -migraatio
 - ✅ Tapahtumalokitallennus
+- ✅ Päivitysnotifikaattori (feedgasm.py: ATOM-tuki)
 - ⬜ Ajastetut tehtävät: tuki kellonajoille
 - ⬜ Keskustelulokitallennus mIRC-/irssi-formaatissa (pisg ja mIRCStats 🖐🏼)
 - ⬜ Uudistettu käyttäjäasetustietokanta
-- ⬜ Päivitysnotifikaattori ja päivitysten lataus komennolla
+
 
 
 ## Komponentit
@@ -26,6 +27,7 @@
         - Kaavinta, tallennus ja ulostus
             - ✅ Helsingin Sanomien sarjakuvat
             - ✅ bigbrother.fi/uutiset
+            - ✅ ATOM
             - ⬜ RSS
 - Suunnitteilla
     - ⬜ Discordin lyhentämien embed-otsikoiden *epälyhentäminen* (sen sijaan että tehtäisiin uusi embed, spämmätään vain otsikko)

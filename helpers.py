@@ -114,7 +114,7 @@ class Fetch:
                 await self.session.close()
                 log.error("%s: not found (404) :(", self.url)
             else:
-                log.error("%s: %s :(", self.url, self.status)
+                log.error("%s: %s :(", self.url, self.r.status)
                 await self.session.close()
                 
 

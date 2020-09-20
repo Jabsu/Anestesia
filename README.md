@@ -9,7 +9,6 @@ Suomenkielisillä\* toiminnallisuuksilla turboahdettu modulaarinen Discord-botti
 - Loki-ilmoitukset ja -tallennus, optionaalisesti superverbaali ulostus
 - !reload-komento komponenttien ja konfigurointien uudelleenlataamista varten
 - Tulossa: Keskustelulokitallennus irssi-/mIRC-formaatissa (pisg ja mIRCStats 🖐🏼)
-- Tulossa: Päivitysnotifikaatiot
 - Tulossa: !avatar-komento botin profiilikuvan vaihtamista varten
 
 

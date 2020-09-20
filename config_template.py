@@ -62,8 +62,9 @@ FEEDGASM_DATABASE = 'mods/feedgasm/feedgasm.db'
 #  - method:
 #    - hsc = Helsingin Sanomien sarjakuvat
 #    - bbu = bigbrother.fi-sivuston uutiset
-#    - rss = RSS-syötteet
+#    - atom = ATOM-syötteet
 #    - nel = Nelosen ohjelmakohtaiset uutiset
+#    - rss = RSS-syötteet
 
 # Lisäasetukset:
 #  - interval: tarkistusintervalli minuuteissa (default: 60)
@@ -92,6 +93,14 @@ FEEDS = {
         'url': 'https://www.bigbrother.fi/uutiset/',
         'interval': 10,
         'color': '0xFF1493',
+    },
+    'Anestesia': {
+        'channels': '469776246750969856',
+        'method': 'atom',
+        'url': 'https://github.com/Jabsu/Anestesia/commits/master.atom',
+        'image': 0,
+        'interval': 15,
+        'color': '0x2ECC71',
     }
 }
 

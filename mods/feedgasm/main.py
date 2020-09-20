@@ -3,6 +3,7 @@ import sys
 import time
 import random
 import importlib
+import datetime as dt
 import re 
 import logging as log
 
@@ -21,9 +22,6 @@ class Main():
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
-        
-        
-        
         self.client = universal.client
         self.sql_columns = {
             'title': 'TEXT', 
@@ -224,24 +222,80 @@ class Main():
             
         await self.scraping_done()
         
-    
-    async def rss(self, **kwargs):
-        '''RSS feed scraper. Refactoring needed.'''
         
-        log.info('RSS feed scraper not yet implemented.')
-        return
-
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-            
+    async def atom(self, **kwargs):
+        '''ATOM feed scraper.'''
         
+        if not self.init_scraper(**kwargs):
+            return
         
-        self.method = 'RSS'
         self.parser = 'lxml-xml'
-        await self.cook()
-        publ = {}
-        self.publications = {}
-        self.item_count = 1
+        log.debug('Requesting %s', self.url)
+        soup = await self.make_soup()
+        entries = soup.find_all('entry')
+        
+        if not entries:
+            log.warning("%s: Couldn't find any entries. Please validate the ATOM feed.", self.table)
+            return
+
+        for entry in entries:
+            try:
+                title = entry.find('title').text.strip()
+            except:
+                log.debug('Unable to retrieve <title> from an entry. Skipping.')
+                continue
+            try:
+                url = entry.find('link').get('href')
+            except:
+                log.debug('Unable to retrieve <link> from an entry. Skipping.')
+                continue
+            try:
+                updated = entry.find('updated').text
+                strptime = dt.datetime.strptime(updated, '%Y-%m-%dT%H:%M:%SZ')
+                footer = strptime.strftime('%d/%m/%Y klo %H:%M')
+            except:
+                footer = False
+            try:
+                content = entry.find('content').text.strip()
+                desc = re.search('<pre.*?\n\n(.*)', content, re.DOTALL).group(1)
+                desc = desc.replace('</pre>', '')
+            except:
+                desc = False
+            try:
+                image_url = entry.find('media:thumbnail').get('url')
+            except:
+                image_url = False
+       
+            self.publications[self.item_count] = {
+                'title': title,
+                'url': url,
+                'desc': desc,
+                'image_url': image_url,
+                'footer': footer,
+            }
+            
+            if self.item_count == int(self.spam_max): 
+                break
+            self.item_count += 1
+            
+        await self.scraping_done()
+                
+            
+            
+    async def rss(self, **kwargs):
+        '''RSS feed scraper -- not yet implemented/refactored.'''
+        return
+        
+        if not self.init_scraper(**kwargs):
+            return
+        
+        log.debug('Requesting %s', self.url)
+        self.parser = 'lxml-xml'
+        soup = await self.make_soup()
+        
+        items = soup.find_all('entry')
+        
+        # Reddit specific RSS feed scraper:
         if 'reddit.com' in self.url:
             self.parser = 'html.parser'
             for item in self.soup.find_all('entry'):
