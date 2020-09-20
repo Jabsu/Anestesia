@@ -3,9 +3,9 @@ import sys
 import time
 import random
 import importlib
-import datetime as dt
 import re 
 import logging as log
+from datetime import datetime
 
 import discord
 
@@ -51,6 +51,14 @@ class Main():
             if time.strftime('%w') not in days: 
                 ret = False
         return ret
+    
+    
+    def utc_to_local (self, utc):
+        '''Convert datetime from UTC to local timezone.'''
+        
+        epoch = time.mktime(utc.timetuple())
+        offset = datetime.fromtimestamp (epoch) - datetime.utcfromtimestamp (epoch)
+        return utc + offset
         
     
     async def db_operations(self):
@@ -251,8 +259,9 @@ class Main():
                 continue
             try:
                 updated = entry.find('updated').text
-                strptime = dt.datetime.strptime(updated, '%Y-%m-%dT%H:%M:%SZ')
-                footer = strptime.strftime('%d/%m/%Y klo %H:%M')
+                strptime = datetime.strptime(updated, '%Y-%m-%dT%H:%M:%SZ')
+                converted = self.utc_to_local(strptime)
+                footer = converted.strftime('%d/%m/%Y klo %H:%M')
             except:
                 footer = False
             try:
