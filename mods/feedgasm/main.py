@@ -268,8 +268,8 @@ class Main():
        
             self.publications[self.item_count] = {
                 'title': title,
-                'url': url,
                 'desc': desc,
+                'url': url,
                 'image_url': image_url,
                 'footer': footer,
             }
