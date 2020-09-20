@@ -77,6 +77,14 @@ class Bot(discord.Client):
         except:
             return
         
+        if cmd == '!pull':
+            if message.author.id != int(config.OWNER): 
+                return
+            stream = os.popen('git pull')
+            output = stream.read()
+            log.info('Executed "git pull":\n%s', output)
+            await message.channel.send(f'```{output}```')
+        
         if cmd == '!reload':
             if message.author.id != int(config.OWNER): 
                 return
