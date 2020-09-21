@@ -28,6 +28,6 @@ Suomenkielisillä\* toiminnallisuuksilla turboahdettu modulaarinen Discord-botti
 ## Asennus
 1. Asenna Python 3.6+
 2. Kloonaa repolainen: `git clone https://github.com/Jabsu/Anestesia.git`
-3. Uudelleennimeä *config_template.py* -> *config.py*
-4. Asenna tarvittavat moduulit: `pip install -U -r requirements.txt`
+3. Uudelleennimeä *config_template.py* -> *config.py* ja tee tarvittavat konfiguroinnit
+4. Asenna vaaditut moduulit: `pip install -U -r requirements.txt`
 5. Käynnistä botti: `python anestesia.py`

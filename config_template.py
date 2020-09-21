@@ -3,7 +3,7 @@
 # =========================================================================================================
 
 # Botin token
-BOT_TOKEN = 'allutuppurainenDÖFDÖFDÖFnägNÄGKRÄÄK'
+BOT_TOKEN = 'nekottob'
 
 # Botin omistajan ID
 OWNER = '1337'
@@ -11,6 +11,7 @@ OWNER = '1337'
 # Komponentit
 COMPONENTS = (
     'mods.feedgasm.main',
+    'mods.triggers.main',
 )
 
 # Ajastetut tehtävät suoritetaan botin käynnistyksen yhteydessä intervalliasetuksista piittaamatta 
@@ -115,7 +116,7 @@ FEEDS = {
 # TRIGGERS-asetuksen rakenne: 
 # {
 #    'server_id_1, server_id_2': {
-#        'regex_trigger_1': [
+#        'regex_trigger_1': [ # Mikäli rivejä/toimintoja on useita, arvotaan näistä yksi
 #            'tekstirivi',
 #            'TOIMINTO=toiminto',
 #        ],
@@ -123,12 +124,10 @@ FEEDS = {
 #            ...    
 #        ],  
 #    },
-#    'server_id_3, server_id_4': {
+#    'server_id_1, server_id_3': { # Sama serveri voi olla tarvittaessa useassa eri triggerinipussa
 #        ...
 #    },
 # }
-#
-# Mikäli rivejä/toimintoja on useita, arvotaan näistä yksi.
 #
 # Toimintokytkimet:
 # - FILE: satunnainen rivi tekstitiedostosta (lokaali tai URL)
@@ -206,8 +205,8 @@ SECS_PER_CHAR = 0.1
 # Regex-rivimuokkaus käytössä 
 REGSUBS = True
 
-# Käydään läpi tämä määrä rivejä regex-muokkausta yrittäessä
+# Käydään läpi tämä määrä viimeisimpiä rivejä regex-muokkausta yrittäessä
 REGSUBS_HISTORY_LIMIT = 100
 
-# Ohita botin rivit
+# Ohitetaan botin omat rivit regex-muokkausta yrittäessä
 REGSUBS_SKIP_BOT = True

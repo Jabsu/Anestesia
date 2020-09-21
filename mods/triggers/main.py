@@ -124,7 +124,6 @@ class Main:
         for server, triggers in config.TRIGGERS.items():
             if str(self.message.guild.id) in server.replace(' ', '').split(','):
                 keys.append(server)
-                continue
                 
         if not keys: return
         
