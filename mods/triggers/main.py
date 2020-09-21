@@ -120,11 +120,11 @@ class Main:
     
     async def check_triggers(self):
         
-        allowed = False
+        key = False
         for server, triggers in config.TRIGGERS.items():
             if str(self.message.guild.id) in server.replace(' ', '').split(','):
-                allowed = True
-        if not allowed: return
+                key = server
+        if not key: return
         
         if config.REGSUBS:
             self.regsub = re.search(r'^s([^a-z ])(.*?)\1(.*?)\1([ig]?)', self.content)
@@ -132,7 +132,7 @@ class Main:
                 await self.regex_substitute()
                 return
         
-        for regex, values in triggers.items():
+        for regex, values in config.TRIGGERS[key].items():
             try:
                 match = re.search(regex, self.content, flags=re.I)
             except Exception as e:
