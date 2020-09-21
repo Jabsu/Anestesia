@@ -120,11 +120,13 @@ class Main:
     
     async def check_triggers(self):
         
-        key = False
+        keys = []
         for server, triggers in config.TRIGGERS.items():
             if str(self.message.guild.id) in server.replace(' ', '').split(','):
-                key = server
-        if not key: return
+                keys.append(server)
+                continue
+                
+        if not keys: return
         
         if config.REGSUBS:
             self.regsub = re.search(r'^s([^a-z ])(.*?)\1(.*?)\1([ig]?)', self.content)
@@ -132,40 +134,41 @@ class Main:
                 await self.regex_substitute()
                 return
         
-        for regex, values in config.TRIGGERS[key].items():
-            try:
-                match = re.search(regex, self.content, flags=re.I)
-            except Exception as e:
-                log.error('Regex-syntaksisi on virheellinen: %s', e)
-                match = False
-            if match:
-                line = random.choice(values)
-                try: 
-                    self.switch, self.value = line.split('=')
-                    value = await self.switches()
-                    if self.switch == 'REACT':
-                        await self.message.add_reaction(value)
+        for key in keys:
+            for regex, values in config.TRIGGERS[key].items():
+                try:
+                    match = re.search(regex, self.content, flags=re.I)
+                except Exception as e:
+                    log.error('Regex-syntaksisi on virheellinen: %s', e)
+                    match = False
+                if match:
+                    line = random.choice(values)
+                    try: 
+                        self.switch, self.value = line.split('=')
+                        value = await self.switches()
+                        if self.switch == 'REACT':
+                            await self.message.add_reaction(value)
+                            return
+                        elif self.switch == 'EMBED':
+                            await self.create_embed()
+                            return
+                        else: 
+                            message = await self.convert_emoji(value)                        
+                    except ValueError:
+                        message = await self.convert_emoji(line)
+                    except:
+                        log.exception('Something quite peculiar just happened!')
                         return
-                    elif self.switch == 'EMBED':
-                        await self.create_embed()
-                        return
-                    else: 
-                        message = await self.convert_emoji(value)                        
-                except ValueError:
-                    message = await self.convert_emoji(line)
-                except:
-                    log.exception('Something quite peculiar just happened!')
-                    return
                         
-                msg = self.orig_msg.replace('%NICK%', self.nick).replace('%MENT%', self.nick)
+                    msg = self.orig_msg.replace('%NICK%', self.nick).replace('%MENT%', self.nick)
                 
-                if config.SIMULATE_HUMANS:
-                    type_delay = round(len(msg) * config.SECS_PER_CHAR,2)
-                    async with self.message.channel.typing():
-                        await asyncio.sleep(type_delay)
-                        await self.message.channel.send(message.replace('%NICK%', self.nick).replace('%MENT%', self.message.author.mention))
-                else:
-                    await self.message.channel.send(message.replace('%NICK%', self.nick).replace('%MENT%', self.message.author.mention))    
+                    if config.SIMULATE_HUMANS:
+                        type_delay = round(len(msg) * config.SECS_PER_CHAR,2)
+                        async with self.message.channel.typing():
+                            await asyncio.sleep(type_delay)
+                            await self.message.channel.send(message.replace('%NICK%', self.nick).replace('%MENT%', self.message.author.mention))
+                    else:
+                        await self.message.channel.send(message.replace('%NICK%', self.nick).replace('%MENT%', self.message.author.mention))    
                 
     
                 
