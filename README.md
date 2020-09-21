@@ -14,8 +14,8 @@ Suomenkielisillä\* toiminnallisuuksilla turboahdettu modulaarinen Discord-botti
 
 ## Komponentit
 - *feedgasm.py*: Nuuskii Internetin syövereiden vuolaita virtoja ja poimii näistä uusimmat julkaisut halutuille kanaville
+- *triggers.py*: Aseta regex-triggereitä, joihin botti reagoi (satunnaisella) emojilla, kuvalla/GIF:illä tai tekstillä listasta tai tiedostosta (lokaali/url)
 - Tulossa olevat komennot ja toiminnot: 
-    - Regex-triggerit monipuolisine ja optionaalisesti satunnaisine reaktioineen
     - Säät ja kelit käyttäjäasetuksineen
     - Välimatkat, reitit
     - Ajastin

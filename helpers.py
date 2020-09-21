@@ -110,6 +110,7 @@ class Fetch:
                 # log.debug('%s -- the request went fine!', self.url)
                 self.content = await self.r.read()
                 await self.session.close()
+                return self.content
             elif self.r.status == 404:
                 await self.session.close()
                 log.error("%s: not found (404) :(", self.url)
