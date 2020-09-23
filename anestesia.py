@@ -104,8 +104,16 @@ class Bot(discord.Client):
                 try:
                     importlib.reload(sys.modules[module])
                     log.info('Component %s loaded successfully!', module)
+                except KeyError:
+                    try: 
+                        importlib.import_module(module)
+                    except:
+                        log.exception('Failed to load a new component: %s', module)
+                        await message.channel.send(
+                        f''':warning: Juuri lisätyn komponentin `{module}` lataaminen epäonnistui:\n```python\n
+                        {traceback.format_exc()}```''')
                 except:
-                    log.exception('Failed to load component %s!', module)
+                    log.exception('Failed to load component: %s', module)
                     await message.channel.send(
                         f''':warning: Komponentin `{module}` lataaminen epäonnistui:\n```python\n
                         {traceback.format_exc()}```''')
