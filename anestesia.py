@@ -90,6 +90,13 @@ class Bot(discord.Client):
                 return
             try:
                 importlib.reload(config)
+                log.info('universal.py loaded successfully.')
+            except Exception as e:
+                log.exception('Failed to load universal.py!')
+                await message.channel.send(f':warning: Globaalien muuttujien (universal.py) lataaminen epäonnistui: `{e}`')
+                return
+            try:
+                importlib.reload(config)
                 log.info('config.py loaded successfully.')
             except Exception as e:
                 log.exception('Failed to load config.py!')
@@ -164,13 +171,15 @@ class Bot(discord.Client):
         
         else: 
             for pattern, values in universal.patterns.items():
-                mod, met = values
-                if re.search(pattern, message.content, flags=re.I):
-                    mod = importlib.import_module(mod)
-                    cls = getattr(mod, 'Main')
-                    cls = cls(message=message)
-                    met = getattr(cls, met)
-                    results = await met()
+                if values:
+                    for v in values:
+                        mod, met = v.replace(' ', '').split(',')
+                        if met and re.search(pattern, message.content, flags=re.I):
+                            mod = importlib.import_module(mod)
+                            cls = getattr(mod, 'Main')
+                            cls = cls(message=message)
+                            met = getattr(cls, met)
+                            results = await met()
     
     
     async def on_member_update(self, before, after):
