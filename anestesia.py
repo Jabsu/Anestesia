@@ -172,8 +172,7 @@ class Bot(discord.Client):
         else: 
             for pattern, values in universal.patterns.items():
                 if values:
-                    for v in values:
-                        mod, met = v.replace(' ', '').split(',')
+                    for mod, met in values.items():
                         if met and re.search(pattern, message.content, flags=re.I):
                             mod = importlib.import_module(mod)
                             cls = getattr(mod, 'Main')

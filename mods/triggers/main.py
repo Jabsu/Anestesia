@@ -11,7 +11,7 @@ import universal
 from helpers import Fetch
 
 triggers = {}
-universal.patterns['.*'] += ['mods.triggers.main, check_triggers']
+universal.patterns['.*']['mods.triggers.main'] = 'check_triggers'
 
 
 class Main:
