@@ -102,21 +102,24 @@ class Fetch:
                 connector=aiohttp.TCPConnector(verify_ssl=False), 
                 cookies=self.jar)
         
-        async with self.session.get(
-            self.url, headers=self.headers, 
-            allow_redirects=self.allow_redirects) as self.r:
+        try:
+            async with self.session.get(
+                self.url, headers=self.headers, 
+                allow_redirects=self.allow_redirects) as self.r:
         
-            if self.r.status == 200:
-                # log.debug('%s -- the request went fine!', self.url)
-                self.content = await self.r.read()
-                await self.session.close()
-                return self.content
-            elif self.r.status == 404:
-                await self.session.close()
-                log.error("%s: not found (404) :(", self.url)
-            else:
-                log.error("%s: %s :(", self.url, self.r.status)
-                await self.session.close()
+                if self.r.status == 200:
+                    # log.debug('%s -- the request went fine!', self.url)
+                    self.content = await self.r.read()
+                    await self.session.close()
+                    return self.content
+                elif self.r.status == 404:
+                    await self.session.close()
+                    log.error("%s: not found (404) :(", self.url)
+                else:
+                    log.error("%s: %s :(", self.url, self.r.status)
+                    await self.session.close()
+        except:
+            log.exception('A http request resulted with an exception!')
                 
 
 class Scheduler:

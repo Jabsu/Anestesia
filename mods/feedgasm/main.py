@@ -183,7 +183,7 @@ class Main():
         if not self.init_scraper(**kwargs):
             return
         
-        log.debug('%s: Requesting %s', self.table, self.url)
+        log.debug('Requesting %s', self.url)
         soup = await self.make_soup()
         items = soup.find_all('article')
                 

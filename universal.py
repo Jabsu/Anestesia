@@ -15,7 +15,7 @@ def init():
         first_run = True
         
     commands = {}
-    patterns = {}
+    patterns = {'.*': {}}
     timers = {}
     statuses = {}
     schedules = {}
