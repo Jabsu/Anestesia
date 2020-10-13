@@ -48,6 +48,42 @@ CHAT_LOG_FMT = 'mirc'
 # =========================================================================================================
 
 
+
+# ---------------------------------------------------------------------------------------------------------
+# chat_log.py
+# ---------------------------------------------------------------------------------------------------------
+
+# Kanavat, joiden keskustelut logataan tietokantaan ja/tai tekstitiedostoon (mIRC-lokiformaatissa)
+CHAT_LOG_CHANNELS = {
+    '218529352617426944': {
+        'database': True, # tietokantatallennus on pakollinen, mikäli haluat ottaa käyttöön regex-lokihaut
+        'mirc_log': 'logs/Testiserveri_#testikanava.log', # False, jos et halua tiedostoa tallennettavan
+    },
+}
+
+# SQLite-tietokantatiedosto
+CHAT_LOG_DATABASE = 'mods/chat_log/chat_log.db'
+
+# Roolikohtaiset nimimerkki-prefixit:
+CHAT_LOG_NICK_PREFIXES = {
+    '217546906765623296': '@',
+    '217577600493682689': '+',
+    'default': ' ',
+}
+
+# Laskukaava vaadittavien sanojen määrälle per taso
+CHAT_LOG_XP_FORMULA = '500 * (level ** 2) - (500 * level)'
+
+# Tasokohtaiset roolit (tasoon vaadittava sanamäärä perustuu oletuslaskukaavaan)
+CHAT_LOG_ROLES = {
+    2: 2424243242525252524, # 1 000 sanaa
+    5: 2523231235123513135, # 10 000 sanaa
+    10: 2523231235123513135, # 45 000 sanaa
+    20: 3233214213421313253, # 190 000 sanaa
+}
+
+
+
 # ---------------------------------------------------------------------------------------------------------
 # feedgasm.py
 # ---------------------------------------------------------------------------------------------------------
