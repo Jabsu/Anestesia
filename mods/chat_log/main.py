@@ -1,6 +1,8 @@
+import os
 import re
 import time
 import logging as log
+from datetime import datetime
 
 import discord
 
@@ -16,6 +18,8 @@ class Main:
             setattr(self, key, value)
         
         self.client = universal.client
+        
+        self.datefile = os.path.join(os.path.dirname(__file__), 'lastdate.txt')
         
     
     def set_prefix(self):
@@ -33,12 +37,37 @@ class Main:
         # do stuff
         pass
     
+    def date_tracker(self):
+        '''Date tracking for logging in mIRC format.
+        This allows the bot to log the "Session Time" without being online
+        at midnight and without going through the log file.'''
+        
+        now = datetime.now()
+        self.mirc_date = datetime.strftime(now, '%a %b %d 00:00:00 %Y')
+        date = datetime.strftime(now, '%d/%m/%Y')
+        if not os.path.exists(self.datefile):
+            with open(self.datefile, 'w') as f:
+                f.write(date)
+            return True
+        else:
+            with open(self.datefile, 'r') as f:
+                prev_date = f.read()
+            if prev_date == date:
+                return False
+            else:
+                with open(self.datefile, 'w') as f:
+                    f.write(date)
+                return True
+            
+    
     async def save_message(self):
         self.role_ids = [str(y.id) for y in self.message.author.roles]
         self.content = str(self.message.content)
         self.set_timestamp()
         self.set_prefix()
         self.sanitize_ids()
+        if self.date_tracker():
+            print(f'Session Time: {self.mirc_date}')
         
         for msg in self.content.split('\n'):
             output = f"[{self.timestamp}] <{self.prefix}{self.message.author.name}> {msg}"
@@ -61,7 +90,7 @@ class Main:
         # print(output)
 
         
-# mIRC-formaattireferenssi
+# mIRC logging format reference
 '''
 Session Time: Sat Jan 06 00:00:00 2018
 [00:00] <@Allu> plaaplaa

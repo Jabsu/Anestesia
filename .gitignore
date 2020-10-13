@@ -4,4 +4,4 @@ venv/
 *.log
 *.db
 config.py
-
+lastdate.txt
