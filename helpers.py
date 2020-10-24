@@ -4,6 +4,7 @@ import aiohttp
 import requests
 import importlib
 import logging as log
+from datetime import datetime
 
 from bs4 import BeautifulSoup as bs
 
@@ -123,7 +124,7 @@ class Fetch:
                 
 
 class Scheduler:
-    '''Scheduling everything makes the life more (un)comfortable.'''
+    '''A custom scheduler, or: a stubborn effort to reinvent the wheel (e.g. discord.ext.tasks).'''
     
     def __init__(self):
         self.loop = asyncio.get_event_loop()
@@ -138,7 +139,7 @@ class Scheduler:
             log.exception("An unhandled exception just happened with a scheduled task!")
         
     
-    async def schedule(self, met, args):
+    async def interval_loop(self, met, args):
         while True:
             if universal.first_run and config.IGNORE_INTERVALS_ON_LAUNCH: 
                 await asyncio.sleep(1)
@@ -153,8 +154,31 @@ class Scheduler:
                 await met()
             if universal.first_run:
                 universal.first_run = False
-
-    
+                
+                
+    async def timed_loop(self, met, args):
+        timings = args['timings']
+        while True:
+            await asyncio.sleep(1)
+            now = datetime.now()
+            day = datetime.strftime(now, '%a')
+            time = datetime.strftime(now, '%H:%M')
+            passes = 0
+            def check(val, val_name):
+                if not timings[val_name]: 
+                    return True
+                else:
+                    for v in timings[val_name]:
+                        if v == val:
+                           return True
+            if check(day, 'days'):
+                passes += 1
+            if check(time, 'times'):
+                passes += 1
+            if passes == 2:
+                await met(**args)
+                await asyncio.sleep(60)
+                
     async def run_tasks(self):
         for e, l in universal.schedules.items():
             mod, args = l
@@ -162,7 +186,13 @@ class Scheduler:
             cls = getattr(mod, 'Main')
             cls = cls()
             met = getattr(cls, args['method'])
-            self.tasks.append(self.loop.create_task(self.log_exceptions(self.schedule(met, args))))
+            try:
+                args['timings']
+            except:
+                self.tasks.append(self.loop.create_task(self.log_exceptions(self.interval_loop(met, args))))
+            else:
+                self.tasks.append(self.loop.create_task(self.log_exceptions(self.timed_loop(met, args))))
+            
             log.debug('A new scheduled task was created: %s', str(met))
         
 

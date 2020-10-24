@@ -12,6 +12,7 @@ OWNER = '1337'
 COMPONENTS = (
     'mods.feedgasm.main',
     'mods.triggers.main',
+    'mods.chat_log.main',
 )
 
 # Ajastetut tehtävät suoritetaan botin käynnistyksen yhteydessä intervalliasetuksista piittaamatta 
@@ -55,10 +56,10 @@ CHAT_LOG_FMT = 'mirc'
 
 # Serverit, joiden keskustelut logataan tietokantaan ja/tai tekstitiedostoon (mIRC-lokiformaatissa)
 CHAT_LOG_SERVERS = {
-    217544751639953409: {
+    '217544751639953409': {
         'database': True, # tietokantatallennus (pakollinen, mikäli haluat ottaa käyttöön regex-lokihaut)
         'log_file': True, # tiedostotallennus (mIRC-lokiformaatissa)
-        'channels': [218529352617426944, 531498094597111814], # logattavat kanavat ([] = kaikki kanavat)
+        'channels': ['217576842654121984', '218529352617426944'], # logattavat kanavat ([] = kaikki kanavat)
     },
 }
 
@@ -71,20 +72,20 @@ CHAT_LOG_DATABASE = 'mods/chat_log/chat_log.db'
 
 # Roolikohtaiset nimimerkki-prefixit (mIRC-lokitallennusta varten):
 CHAT_LOG_NICK_PREFIXES = {
-    217546906765623296: '@',
-    217577600493682689: '+',
+    '217546906765623296': '@',
+    '217577600493682689': '+',
     'default': ' ',
 }
 
 # Laskukaava vaadittavien sanojen määrälle per taso
 CHAT_LOG_XP_FORMULA = '500 * (level ** 2) - (500 * level)'
 
-# Tasokohtaiset roolit
+# Tasokohtaiset roolit (tasoon vaadittava sanamäärä perustuu oletuslaskukaavaan)
 CHAT_LOG_ROLES = {
-    2: 2424243242525252524, # 1 000 sanaa, jos käytössä oletuslaskukaava
-    5: 2523231235123513135, # 10 000 sanaa, --||--
-    10: 4523231235123513135, # 45 000 sanaa, --||--
-    20: 3233214213421313253, # 190 000 sanaa, --||--
+    '2': '2424243242525252524', # 1 000 sanaa
+    '5': '2523231235123513135', # 10 000 sanaa
+    '10': '2523231235123513135', # 45 000 sanaa
+    '20': '3233214213421313253', # 190 000 sanaa
 }
 
 
