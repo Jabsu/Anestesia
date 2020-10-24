@@ -54,9 +54,6 @@ CHAT_LOG_FMT = 'mirc'
 # ---------------------------------------------------------------------------------------------------------
 
 # Serverit, joiden keskustelut logataan tietokantaan ja/tai tekstitiedostoon (mIRC-lokiformaatissa)
-
-# mirc_log-asetuksen tiedostonimessä toimivat muuttujat: 
-# $server_id$, $server_name$, $channel_id$, $channel_name$
 CHAT_LOG_SERVERS = {
     217544751639953409: {
         'database': True, # tietokantatallennus (pakollinen, mikäli haluat ottaa käyttöön regex-lokihaut)
