@@ -267,7 +267,7 @@ class Main():
             try:
                 content = entry.find('content').text.strip()
                 desc = re.search('<pre.*?\n\n(.*)', content, re.DOTALL).group(1)
-                desc = desc.replace('</pre>', '')
+                desc = desc.replace('</pre>', '').replace('&quot;', '"')
             except:
                 desc = False
             try:
