@@ -134,9 +134,8 @@ class Main:
                 return True
             
     
-  
-    
     async def status_handler(self):
+        return
         user = str(self.after).split('#')[0]
         self.role_ids = [str(y.id) for y in self.after.roles]
         self.set_timestamp()
@@ -149,14 +148,3 @@ class Main:
             output += 'has left #channel'
         else:
             output = False
-       
-        
-# mIRC logging format reference
-'''
-Session Time: Sat Jan 06 00:00:00 2018
-[00:00] <@Allu> plaaplaa
-[20:48] * Snugel (id@host) has joined #puluputes
-[04:03] * @Nakke (Nakke@jakke.fi) has left #puluputes
-[01:26] * @Sepe (id@host) Quit (message)
-[18:21] * sipoo changes topic to 'öböbö'
-'''
