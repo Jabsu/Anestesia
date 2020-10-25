@@ -2,6 +2,7 @@ import os
 import re
 import time
 import logging as log
+import json
 from timeit import default_timer as timer
 from datetime import datetime
 from collections import OrderedDict
@@ -38,6 +39,8 @@ class Main:
         
         
     async def message_handler(self):
+        if self.message.author.bot:
+            return
         self.content = str(self.message.content)
         self.chan = self.message.channel
         self.guild = self.message.guild
@@ -57,7 +60,8 @@ class Main:
             await self.database_handler()
         if self.server['log_file']:
             await self.mirc_formatter()
-            
+        
+        await self.count_words()
    
     async def write_to_file(self, output):
         filename = self.file_naming()
@@ -78,6 +82,7 @@ class Main:
             text = text.replace(char, '')
         return text
     
+    
     def file_naming(self):
         guild_name = self.clean_illegal_chars(self.guild.name)
         # Substitute user variables    
@@ -92,10 +97,79 @@ class Main:
             filename = filename.replace(uvar, str(sub))
         return filename
     
+    
     async def database_handler(self):
         pass
     
     
+    async def read_userfile(self):
+        file = os.path.join(os.path.dirname(__file__), 'users.json')
+        if os.path.exists(file):
+            with open(file, 'r', encoding='utf-8') as f:
+                js = json.load(f)
+            return js
+        else:
+            return {}
+    
+    
+    async def write_to_userfile(self, data):
+        file = os.path.join(os.path.dirname(__file__), 'users.json')
+        with open(file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, sort_keys=True, indent=4)
+            
+            
+    async def manage_user_data(self, data, server, user, new_data):
+        for item, value in new_data.items():
+            try:
+                data[server][user][item] = value
+            except KeyError:
+                data = {
+                    server: {
+                        user: {
+                            item: value,
+                            },
+                        },
+                    }
+        
+        await self.write_to_userfile(data)
+        
+        
+    async def count_words(self):
+        gid = str(self.guild.id)
+        uid = str(self.message.author.id)
+        msg = str(self.message.content).strip()
+        user_data = await self.read_userfile()
+        
+        try:
+            total_words = user_data[gid][uid]['word_count']
+        except KeyError:
+            total_words = 0
+        try:
+            last_msg_epoch = user_data[gid][uid]['last_msg_epoch']
+        except KeyError:
+            last_msg_epoch = 0
+        try:
+            last_msg = user_data[gid][uid]['last_msg']
+        except KeyError:
+            last_msg = ''
+        
+        epoch = int(time.time())
+        
+        # Spam protection
+        if epoch - last_msg_epoch < 5 or last_msg == msg:
+            return
+
+        stripped = re.sub('https?[^ ]+', '', msg)
+        words = len(re.findall('[a-ö]{4,}', stripped, re.I))
+        words = total_words + words
+        new_user_data = {
+            'word_count': words,
+            'last_msg_epoch': epoch,
+            'last_msg': msg,
+            }
+        await self.manage_user_data(user_data, gid, uid, new_user_data)
+        
+                
     async def mirc_formatter(self):
         self.role_ids = [str(y.id) for y in self.message.author.roles]
         self.set_prefix()
@@ -199,6 +273,8 @@ class Main:
         start = timer()
         
         async for message in self.chan.history(limit=None):
+            if message.author.bot:
+                continue
             created_at = str(message.created_at)
             try:
                 strptime = datetime.strptime(created_at, '%Y-%m-%d %H:%M:%S.%f')

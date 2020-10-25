@@ -3,5 +3,6 @@ __pycache__/
 venv/
 *.log
 *.db
+*.json
+testing.py
 config.py
-lastdate.txt
