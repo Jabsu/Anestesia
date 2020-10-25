@@ -70,12 +70,16 @@ class Main:
             log.error("Couldn't write to %s -- no permissions!", filename)
                 
     
+    def clean_illegal_chars(self, text):
+        '''Remove illegal characters from a string.'''
+        
+        illegal_chars = '<>:"/\|?* '
+        for char in illegal_chars:
+            text = text.replace(char, '')
+        return text
+    
     def file_naming(self):
-        guild_name = self.guild.name
-        # Remove illegal characters from server name
-        invalid_chars = '<>:"/\|?* '
-        for char in invalid_chars:
-            guild_name = guild_name.replace(char, '')
+        guild_name = self.clean_illegal_chars(self.guild.name)
         # Substitute user variables    
         subs = {
             '$channel_name$': self.chan.name,
@@ -97,8 +101,9 @@ class Main:
         self.set_prefix()
         self.sanitize_mentions()
         timestamp = time.strftime("%H:%M", time.localtime())
+        name = self.clean_illegal_chars(self.message.author.name)
         for msg in self.content.split('\n'):
-            output = f"[{timestamp}] <{self.prefix}{self.message.author.name}> {msg}\n"
+            output = f"[{timestamp}] <{self.prefix}{name}> {msg}\n"
             await self.write_to_file(output)
     
     
@@ -204,7 +209,8 @@ class Main:
             session_time = converted.strftime('%a %b %d 00:00:00 %Y')
             timestamp = converted.strftime('[%H:%M]')
             for l in str(message.content).splitlines():
-                line = f'{timestamp} <{message.author.name}> {l}\n'
+                name = self.clean_illegal_chars(message.author.name)
+                line = f'{timestamp} <{name}> {l}\n'
                 try:
                     lines[session_time].append(line)
                 except:
