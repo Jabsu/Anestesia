@@ -2,7 +2,9 @@ import os
 import re
 import time
 import logging as log
+from timeit import default_timer as timer
 from datetime import datetime
+from collections import OrderedDict
 
 import discord
 
@@ -13,6 +15,9 @@ universal.patterns['.*']['mods.chat_log.main'] = 'message_handler'
 universal.statuses['mods.chat_log.main'] = 'status_handler'
 universal.commands['!loki'] = ('mods.chat_log.main', 'log_search')
 universal.commands['!lokir'] = ('mods.chat_log.main', 'log_search_reversed')
+
+# Admin command
+universal.commands['!historia'] = ('mods.chat_log.main', 'save_channel_history')
 
 settings = {
     'method': 'add_session_time',
@@ -129,6 +134,7 @@ class Main:
                             if str(chan.id) in values['channels']:
                                 if str(chan.type) == 'text':
                                     await write(chan, guild)
+                                    
                             
     def sanitize_mentions(self):
         '''Convert mention id's to names.'''
@@ -159,12 +165,79 @@ class Main:
             output = False
             
     
+    def utc_to_local(self, utc):
+        '''Convert datetime from UTC to local timezone.'''
+        
+        epoch = time.mktime(utc.timetuple())
+        offset = datetime.fromtimestamp (epoch) - datetime.utcfromtimestamp (epoch)
+        return utc + offset
+    
+
+    async def save_channel_history(self):
+        '''Save a channel history to a file.'''
+        
+        if str(self.message.author.id) != config.OWNER:
+            return
+        words = self.message.content.split()
+        if len(words) < 2:
+            self.chan = self.message.channel
+        else:
+            all_chans = self.client.get_all_channels()
+            for ch in all_chans:
+                if str(words[1]) == str(ch.id):
+                    self.chan = ch
+        
+        self.guild = self.chan.guild
+        lines = OrderedDict()
+        serv_msg = await self.message.channel.send(
+            f'Käydään läpi #{self.chan.name}-kanavan keskusteluhistoria. Suosittelen lenkillä käymistä tai olutta odotellessa.')
+        start = timer()
+        
+        async for message in self.chan.history(limit=None):
+            created_at = str(message.created_at)
+            try:
+                strptime = datetime.strptime(created_at, '%Y-%m-%d %H:%M:%S.%f')
+            except ValueError:
+                strptime = datetime.strptime(created_at, '%Y-%m-%d %H:%M:%S')
+            converted = self.utc_to_local(strptime)
+            first_date = converted.strftime('%d.%m.%Y klo %H:%M')
+            session_time = converted.strftime('%a %b %d 00:00:00 %Y')
+            timestamp = converted.strftime('[%H:%M]')
+            for l in str(message.content).splitlines():
+                line = f'{timestamp} <{message.author.name}> {l}\n'
+                try:
+                    lines[session_time].append(line)
+                except:
+                    lines[session_time] = [line]
+        
+        first_msg = False
+        filename = self.file_naming()
+        with open(filename, "w", encoding="utf-8") as f:
+            for datum, msgs in reversed(lines.items()):
+                f.write(f'Session Time: {datum}\n')
+                for msg in msgs:
+                    if not first_msg:
+                        first_msg = msg
+                    f.write(msg)
+        end = timer()
+        seconds = int(end - start)
+        m, s = divmod(seconds, 60)
+        h, m = divmod(m, 60)
+        time_spent = f'{h:d} h {m:d} min {s:d} s'
+        
+        if not seconds:
+            cnt = f'Keskusteluhistoria tallennettu onnistuneesti - ja vieläpä silmänräpäyksessä!'
+        else:
+            cnt = f'Keskusteluhistoria tallennettu onnistuneesti! Aikaa kesti: {time_spent}.'
+        await serv_msg.edit(content=f'{cnt} Tiesitkö, että ensimmäinen viesti lähettiin {first_date}?')
+        
+            
     async def log_search(self, reversing=False):
         words = self.message.content.split()
         
         if len(words) < 2:
             await self.message.channel.send(
-                'Hienosti! Voit myös koittaa etsiä muutakin kuin tyhjyyttä: `!loki (§nick) <regex-lauseke>`')
+                'Hienosti! Voit myös koittaa etsiä muutakin kuin tyhjyyttä: `!loki (§nick) <regex-haku>`')
             return
         if words[1].startswith('§'):
             msg_pattern = '\[[0-9]+:[0-9]+\] <([0-9]+|)[^a-ö0-9]?{}([^>]+>|>) (.*)'.format(words[1].replace('§', ''))
@@ -172,12 +245,13 @@ class Main:
         else:
             msg_pattern = '\[[0-9]+:[0-9]+\] <([0-9]+|)[^a-ö0-9]?([^>]+)> (.*)'
             msg = ' '.join(words[1:])
-        
-        filename = 'logs/testikanava.log'
+        self.chan = self.message.channel
+        self.guild = self.message.channel.guild
+        filename = self.file_naming()
         user_pattern = msg
         session_time_pattern = '^Session Time: (.*)'
         format_codes = '([0-9]+|||)'
-        md_replacements = {'*': '＊', '_': '＿', '~': ''}
+        md_replacements = {'*': '＊', '_': '＿'}
         date_format = '%a %b %d %H:%M:%S %Y'
 
         results = ''
