@@ -281,7 +281,7 @@ class Main:
                         session_time = match.group(1).strip()
                         session_time = datetime.strftime(datetime.strptime(session_time, date_format), '%d/%m/%Y')
                 
-                    decoded = re.sub(format_codes, '', decoded)
+                    decoded = re.sub(format_codes, '', decoded).strip()
                     match = re.search(msg_pattern, decoded, re.I)
                     if match:
                         if re.search(user_pattern, match.group(3), re.I):
@@ -295,7 +295,7 @@ class Main:
                                 results += f'> {session_time}\n'
                             old_session_time = session_time
                             n += 1
-                            results += f'{n}. {decoded}'
+                            results += f'{n}. {decoded}\n'
                             if n == 10: break
                             
         if not results:
