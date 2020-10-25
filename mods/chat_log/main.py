@@ -11,6 +11,8 @@ import universal
 
 universal.patterns['.*']['mods.chat_log.main'] = 'message_handler'
 universal.statuses['mods.chat_log.main'] = 'status_handler'
+universal.commands['!loki'] = ('mods.chat_log.main', 'log_search')
+universal.commands['!lokir'] = ('mods.chat_log.main', 'log_search_reversed')
 
 settings = {
     'method': 'add_session_time',
@@ -155,3 +157,74 @@ class Main:
             output += 'has left #channel'
         else:
             output = False
+            
+    
+    async def log_search(self, reversing=False):
+        words = self.message.content.split()
+        
+        if len(words) < 2:
+            await self.message.channel.send(
+                'Hienosti! Voit myös koittaa etsiä muutakin kuin tyhjyyttä: `!loki (§nick) <regex-lauseke>`')
+            return
+        if words[1].startswith('§'):
+            msg_pattern = '\[[0-9]+:[0-9]+\] <([0-9]+|)[^a-ö0-9]?{}([^>]+>|>) (.*)'.format(words[1].replace('§', ''))
+            msg = ' '.join(words[2:])
+        else:
+            msg_pattern = '\[[0-9]+:[0-9]+\] <([0-9]+|)[^a-ö0-9]?([^>]+)> (.*)'
+            msg = ' '.join(words[1:])
+        
+        filename = 'logs/testikanava.log'
+        user_pattern = msg
+        session_time_pattern = '^Session Time: (.*)'
+        format_codes = '([0-9]+|||)'
+        md_replacements = {'*': '＊', '_': '＿', '~': ''}
+        date_format = '%a %b %d %H:%M:%S %Y'
+
+        results = ''
+        with open(filename, "rb") as f:
+            n = 0
+            session_time = 'Ennen ajanlaskun alkua'
+            old_session_time = ''
+            if reversing:
+                lines = reversed(f.readlines())
+            else:
+                lines = f.readlines()
+            for line in lines:
+                try:
+                    decoded = line.decode(encoding='utf-8')
+                except UnicodeDecodeError:
+                    log.error(f'!loki: Decoding error with line: {line}')
+                    continue
+                else:
+                    match = re.search(session_time_pattern, decoded)
+                    if match and not reversing:
+                        session_time = match.group(1).strip()
+                        session_time = datetime.strftime(datetime.strptime(session_time, date_format), '%d/%m/%Y')
+                
+                    decoded = re.sub(format_codes, '', decoded)
+                    match = re.search(msg_pattern, decoded, re.I)
+                    if match:
+                        if re.search(user_pattern, match.group(3), re.I):
+                            
+                            if session_time != old_session_time and not reversing:
+                                if len(results) + len(session_time) >= 1980: 
+                                    break
+                            if len(results) + len(decoded) >= 1980:
+                                break
+                            if not reversing:
+                                results += f'> {session_time}\n'
+                            old_session_time = session_time
+                            n += 1
+                            results += f'{n}. {decoded}'
+                            if n == 10: break
+                            
+        if not results:
+            await self.message.channel.send('Voi kun joku olisikin joskus sanonut jotain noin kaunista.')
+        else:
+            for char, rep in md_replacements.items():
+                results = results.replace(char, rep)
+            await self.message.channel.send(f'```md\n{results}```')
+            
+            
+    async def log_search_reversed(self):
+        await self.log_search(reversing=True)

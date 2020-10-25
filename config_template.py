@@ -36,11 +36,17 @@ WRAPPER_LOGGING_LEVEL = 'INFO'
 # Lokitiedosto
 LOG_FILE = 'logs/events.log'
 
-# Keskustelulokitiedosto (jätä tyhjäksi, jos et halua tallentaa lokia)
-CHAT_LOG = '$server$-$channel$.log'
+# Komentojen kanavakohtaiset käyttöoikeudet
+CMD_CHANNEL_PRIVILEGES = {
+	'!apina': '399506424406736896, 218529352617426944',
+    'default': '217576842654121984, 218529352617426944, 531498094597111814',
+}
 
-# Keskustelulokiformaatti (mirc, irssi)
-CHAT_LOG_FMT = 'mirc'
+# Komentojen roolikohtaiset käyttöoikeudet
+CMD_ROLE_PRIVILEGES = {
+	'default': '217546906765623296',
+}
+
 
 
 
@@ -57,7 +63,7 @@ CHAT_LOG_FMT = 'mirc'
 # Serverit, joiden keskustelut logataan tietokantaan ja/tai tekstitiedostoon (mIRC-lokiformaatissa)
 CHAT_LOG_SERVERS = {
     '217544751639953409': {
-        'database': True, # tietokantatallennus (pakollinen, mikäli haluat ottaa käyttöön regex-lokihaut)
+        'database': True, # tietokantatallennus (hyödyllinen, mutta ei pakollinen regex-lokihauissa)
         'log_file': True, # tiedostotallennus (mIRC-lokiformaatissa)
         'channels': ['217576842654121984', '218529352617426944'], # logattavat kanavat ([] = kaikki kanavat)
     },

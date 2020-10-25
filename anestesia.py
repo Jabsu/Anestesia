@@ -137,22 +137,22 @@ class Bot(discord.Client):
             self.schedules = Scheduler()
             await self.schedules.run_tasks()
             
-        # Not yet implemented:
+        # Commands
         elif cmd in universal.commands:
             
             try:
-                chans = config.commandPerChannels[cmd]
+                chans = config.CMD_CHANNEL_PRIVILEGES[cmd]
             except:
-                chans = config.commandPerChannels['default']
+                chans = config.CMD_CHANNEL_PRIVILEGES['default']
             chans = chans.replace(' ', '')
             if str(message.channel.id) not in chans.split(',') and chans != '':
                 return    
             
             role_id = [str(y.id) for y in message.author.roles]
             try:
-                roles = config.commandPerRoles[cmd]
+                roles = config.CMD_ROLE_PRIVILEGES[cmd]
             except:
-                roles = config.commandPerRoles['default']
+                roles = config.CMD_ROLE_PRIVILEGES['default']
             roles = roles.replace(' ', '')
             priv = False
             for r in role_id: 
