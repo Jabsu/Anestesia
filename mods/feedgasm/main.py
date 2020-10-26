@@ -5,6 +5,7 @@ import random
 import importlib
 import re 
 import logging as log
+import html
 from datetime import datetime
 
 import discord
@@ -267,7 +268,8 @@ class Main():
             try:
                 content = entry.find('content').text.strip()
                 desc = re.search('<pre.*?\n\n(.*)', content, re.DOTALL).group(1)
-                desc = desc.replace('</pre>', '').replace('&quot;', '"')
+                desc = desc.replace('</pre>', '')
+                desc = html.unescape(html.unescape(desc))
             except:
                 desc = False
             try:
