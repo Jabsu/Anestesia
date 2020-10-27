@@ -354,12 +354,14 @@ class Main:
             return
         guild = self.message.guild
         for mention in mentions:
+            name = False
             id = re.search('[0-9]+', mention)[0]
             if mention.startswith('<@&'):
-                name = guild.get_role(int(id)).name
-            else:
-                name = guild.get_member(int(id)).name
-            self.content = re.sub(mention, f'@{name}', self.content)
+                name = guild.get_role(id).name
+            elif mention.startswith('<@!'):
+                name = guild.get_member(id).name
+            if name:
+                self.content = re.sub(mention, f'@{name}', self.content)
 
     
     async def status_handler(self):
