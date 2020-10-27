@@ -134,15 +134,19 @@ class Main:
         
     async def level_ups_and_roles(self, words, level):
         old_level = level
-        level = level + 1
-        level_up_req = eval(config.CHAT_LOG_XP_FORMULA)
         author = self.message.author
         
-        
-        if words < level_up_req:
-            return old_level
-        
-    
+        n = 0
+        while True:
+            level = level + 1
+            n += 1
+            level_up_req = eval(config.CHAT_LOG_XP_FORMULA)
+            if words < level_up_req and n == 1:
+                return old_level
+            elif words < level_up_req:
+                break
+            
+        level = level-1    
             
         def sub(text):
             if not text: 
@@ -236,10 +240,6 @@ class Main:
         return level
             
         
-        
-        
-        
-        
     async def count_words(self):
         gid = str(self.guild.id)
         uid = str(self.message.author.id)
@@ -273,12 +273,17 @@ class Main:
         
         self.epoch = int(time.time())
         
-        # Spam protection
+        # Spam precaution
         if self.epoch - prev_msg_epoch < 5 or prev_msg == msg:
             return
 
         stripped = re.sub('https?[^ ]+', '', msg)
-        words = len(re.findall('[a-ö]{4,}', stripped, re.I))
+        words = len(set(re.findall('[a-ö]{4,}', stripped, re.I)))
+        # Another spam precaution
+        if words > 150:
+            log.debug(
+                '%s wrote a message with %s unique words. Possibly spam.', self.message.author.name, words)
+            return
         words = total_words + words
         
         level = await self.level_ups_and_roles(words, level)
