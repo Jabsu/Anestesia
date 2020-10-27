@@ -63,7 +63,7 @@ CMD_ROLE_PRIVILEGES = {
 # Serverit, joiden keskustelut logataan tietokantaan ja/tai tekstitiedostoon (mIRC-lokiformaatissa)
 CHAT_LOG_SERVERS = {
     '217544751639953409': {
-        'database': True, # tietokantatallennus (hyödyllinen, mutta ei pakollinen regex-lokihauissa)
+        'database': True, # tietokantatallennus (hyödyllinen regex-lokihauissa)
         'log_file': True, # tiedostotallennus (mIRC-lokiformaatissa)
         'channels': ['217576842654121984', '218529352617426944'], # logattavat kanavat ([] = kaikki kanavat)
     },
@@ -84,15 +84,80 @@ CHAT_LOG_NICK_PREFIXES = {
 }
 
 # Laskukaava vaadittavien sanojen määrälle per taso
-CHAT_LOG_XP_FORMULA = '500 * (level ** 2) - (500 * level)'
+CHAT_LOG_XP_FORMULA = '250 * (level ** 2) - (250 * level)'
 
-# Tasokohtaiset roolit (tasoon vaadittava sanamäärä perustuu oletuslaskukaavaan)
-CHAT_LOG_ROLES = {
-    '2': '2424243242525252524', # 1 000 sanaa
-    '5': '2523231235123513135', # 10 000 sanaa
-    '10': '2523231235123513135', # 45 000 sanaa
-    '20': '3233214213421313253', # 190 000 sanaa
+# Tasokohtaiset roolit
+CHAT_LOG_AWARDS = {
+    '2': '770359140110958632', # 500 sanaa, jos käytössä oletuslaskukaava
+    '5': '770359752336080906', # 5 000 sanaa
+    '10': '770360163067625512', # 22 500 sanaa
+    '20': '770361085370433536', # 95 000 sanaa
 }
+
+# Poistetaanko edellinen tasokohtainen rooli, kun saavutetaan uusi?
+CHAT_LOG_REMOVE_OLD_ROLE = True
+
+# Embedin otsikko
+CHAT_LOG_TOAST = [
+   '**$nick$** on saavuttanut tason **$level$** ',
+   '**$nick$** kipusi ihan noin vaan tasolle **$level$** ',
+   '**$nick$** loikkasi tasolle **$level$** ',
+   '**$nick$** saavutti tason **$level$** ',
+   '**$nick$** singahti tasolle **$level$** ',
+   '**$nick$** puhui itsensä tasolle **$level$** ',
+]
+
+# Otsikon etuliite (jätä tyhjäksi, jos et halua etuliitettä)
+# Escapeta (\) emoji, jos haluat, ettei Discord korvaa sitä omalla versiollaan
+CHAT_LOG_TOAST_PREFIX = [
+    '\🤗 ',
+    '\❤️ ',
+    '\💚 ', 
+    '\💜 ',
+    '\🧡 ',
+    '\💙 ',
+    '\🤍 ',
+    '\🤎 ', 
+    '\💗 ', 
+    '\💖 ',
+]
+
+# Otsikon jälkiliite (jätä tyhjäksi, jos et halua jälkiliitettä)
+#  'prefix': sama kuin etuliite
+#  'random_prefix': sama kuin etuliite, mutta uudestaan arvottuna
+#  [uusi_lista]
+CHAT_LOG_TOAST_SUFFIX = 'prefix'
+
+# Onnittelua edeltävä teksti, jos uusi rooli saavutettu
+CHAT_LOG_TOAST_ROLE = [
+    'Mitäs porukka on mieltä? Eikös $nick$ ansaitse roolin $role$?\n\n',
+    'Tästä hyvästä hänen roolikseen on nyt määritetty $role$!\n\n',
+    '$nick$, rooliksesi on aktiivisuutesi ansiosta määritetty $role$!\n\n',
+    'Aktiivisuus kannattaa: $nick$ sai roolin $role$!\n\n',
+    'Kyllä kannatti höpötellä, $nick$: rooliksesi on määritetty $role$!\n\n',
+]
+
+# Onnittelut
+CHAT_LOG_TOAST_KUDOS = [
+    'Sanoisin, että onnittelut ovat paikallaan. Onnittelut!',
+    'Onnittelut ~~perheenlisäyksestä~~ huikeasta saavutuksesta!',
+    'Onnittelut ~~ripille pääsystä~~ ihan käsittämättömän hienosta saavutuksesta!',
+    'Onnittelut ~~syntymäpäivän johdosta~~ vahvasta suorituksesta!',
+    'Onnitella kannattaa, kun onniteltavaa on. Onnitteluni siis.',
+    'Lasten mehuhetki päättyi ikävästi, mutta $nick$ hymyilee varsin leveästi. Onnea!',
+    'Suosiiko onni rohkeaa? Onko $nick$ rohkea? Tarvittiinko tähän onnea? Onnea!',
+    'Ihan käsittämätöntä, miten hienosti jotkut onnistuvat pyrkimyksissään. Onnea!',
+    'Kelpaa onnitella, kun tunteella ja taidolla tehdään tällaisia valtavan hienoja saavutuksia.'
+]
+
+# Onnittelu-embedin reunaväri
+#  'role' = (viimeksi) saavutetun roolin väri
+#  '0xHEX' = tietty väri
+#  '' = satunnainen
+CHAT_LOG_TOAST_COLOR = 'role'
+
+# Käyttäjän thumbnail onnittelu-embedissä
+CHAT_LOG_TOAST_THUMBNAIL = True
 
 
 

@@ -3,11 +3,13 @@ import re
 import time
 import logging as log
 import json
+import random
 from timeit import default_timer as timer
 from datetime import datetime
 from collections import OrderedDict
 
 import discord
+# from discord.utils import get
 
 import config
 import universal
@@ -119,19 +121,123 @@ class Main:
             
             
     async def manage_user_data(self, data, server, user, new_data):
+        if not server in data:
+            data[server] = {user: {}}
+        if not user in data[server]: 
+            data[server][user] = {}
+            
         for item, value in new_data.items():
-            try:
-                data[server][user][item] = value
-            except KeyError:
-                data = {
-                    server: {
-                        user: {
-                            item: value,
-                            },
-                        },
-                    }
-        
+            data[server][user][item] = value
+                
         await self.write_to_userfile(data)
+        
+        
+    async def level_ups_and_roles(self, words, level):
+        old_level = level
+        level = level + 1
+        level_up_req = eval(config.CHAT_LOG_XP_FORMULA)
+        author = self.message.author
+        
+        
+        if words < level_up_req:
+            return old_level
+        
+    
+            
+        def sub(text):
+            if not text: 
+                return text
+            '''def num_subs(val):
+                nums = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿'
+                # nums = [':one:', ':two:', ':three:']
+                try:
+                    num = nums[val-1]
+                except IndexError:
+                    return val
+                else:
+                    return num'''
+                
+            substitutes = {
+                '$mention$': author.mention,
+                '$nick$': author.name,
+                '$role$': role_obj.mention,
+                '$level$': str(level),
+            }
+            for var, sub in substitutes.items():
+                text = text.replace(var, sub)
+            return text
+        
+        if config.CHAT_LOG_TOAST_PREFIX:
+            prefix = random.choice(config.CHAT_LOG_TOAST_PREFIX)
+        else:
+            prefix = ''
+        if config.CHAT_LOG_TOAST_SUFFIX:            
+            if config.CHAT_LOG_TOAST_SUFFIX == 'prefix':
+                suffix = prefix
+            if config.CHAT_LOG_TOAST_SUFFIX == 'random_prefix':
+                suffix = random.choice(config.CHAT_LOG_TOAST_PREFIX)
+        else:
+            suffix = ''
+        
+        title = prefix + random.choice(config.CHAT_LOG_TOAST) + suffix
+        old_role = self.awarded_role
+        
+        if str(level) in config.CHAT_LOG_AWARDS:
+            if config.CHAT_LOG_TOAST_ROLE:
+                desc = random.choice(config.CHAT_LOG_TOAST_ROLE)
+            else:
+                desc = ''
+            role_id = config.CHAT_LOG_AWARDS[str(level)]
+            role_obj = self.message.guild.get_role(int(role_id))
+            self.awarded_role = role_obj.id
+            # Give a new role
+            await author.add_roles(role_obj)
+            # Remove the old role
+            if config.CHAT_LOG_REMOVE_OLD_ROLE and old_role:
+                obj = self.message.guild.get_role(int(old_role))
+                await author.remove_roles(obj)
+        else:
+            if not self.awarded_role:
+                # Set non-awarded top role (for coloring)
+                role_obj = author.roles[-1]
+            else:
+                # Keep the old role
+                role_obj = self.message.guild.get_role(int(self.awarded_role))
+            desc = ''
+            
+        
+        
+        if config.CHAT_LOG_TOAST_KUDOS:
+            desc = desc + random.choice(config.CHAT_LOG_TOAST_KUDOS)
+        
+        if not config.CHAT_LOG_TOAST_COLOR: 
+            color = int(random.random() * 16777214) + 1
+        elif config.CHAT_LOG_TOAST_COLOR == 'role':
+            color = role_obj.color
+        else:
+            color = int(self.color, 0)
+        
+        embed = discord.Embed(title=sub(title), url='http://foo.bar', description=sub(desc), color=color)
+        if config.CHAT_LOG_TOAST_THUMBNAIL:
+            embed.set_thumbnail(url=author.avatar_url)
+
+        if self.level_up_epoch:
+            date = datetime.fromtimestamp(self.level_up_epoch).strftime('%d/%m/%Y klo %H:%M')           
+            embed.set_footer(text=f'Edellinen taso: {date}')
+            
+        self.level_up_epoch = self.epoch
+            
+        await self.message.channel.send(embed=embed)
+        
+
+            
+        self.awarded_role = role_obj.id
+            
+        return level
+            
+        
+        
+        
         
         
     async def count_words(self):
@@ -145,27 +251,46 @@ class Main:
         except KeyError:
             total_words = 0
         try:
-            last_msg_epoch = user_data[gid][uid]['last_msg_epoch']
+            prev_msg_epoch = user_data[gid][uid]['prev_msg_epoch']
         except KeyError:
-            last_msg_epoch = 0
+            prev_msg_epoch = 0
         try:
-            last_msg = user_data[gid][uid]['last_msg']
+            prev_msg = user_data[gid][uid]['prev_msg']
         except KeyError:
-            last_msg = ''
+            prev_msg = ''
+        try:
+            level = user_data[gid][uid]['level']
+        except KeyError:
+            level = 1
+        try:
+            self.awarded_role = user_data[gid][uid]['awarded_role']
+        except:
+            self.awarded_role = 0
+        try:
+            self.level_up_epoch = user_data[gid][uid]['prev_lvl_up_epoch']
+        except:
+            self.level_up_epoch = 0
         
-        epoch = int(time.time())
+        self.epoch = int(time.time())
         
         # Spam protection
-        if epoch - last_msg_epoch < 5 or last_msg == msg:
+        if self.epoch - prev_msg_epoch < 5 or prev_msg == msg:
             return
 
         stripped = re.sub('https?[^ ]+', '', msg)
         words = len(re.findall('[a-ö]{4,}', stripped, re.I))
         words = total_words + words
+        
+        level = await self.level_ups_and_roles(words, level)
+        
         new_user_data = {
             'word_count': words,
-            'last_msg_epoch': epoch,
-            'last_msg': msg,
+            'prev_msg_epoch': self.epoch,
+            'prev_msg': msg,
+            'user_name': self.message.author.name,
+            'level': level,
+            'awarded_role': self.awarded_role,
+            'prev_lvl_up_epoch': self.level_up_epoch,
             }
         await self.manage_user_data(user_data, gid, uid, new_user_data)
         
@@ -224,7 +349,10 @@ class Main:
         guild = self.message.guild
         for mention in mentions:
             id = re.search('[0-9]+', mention)[0]
-            name = guild.get_member(int(id)).name
+            if mention.startswith('<@&'):
+                name = guild.get_role(int(id)).name
+            else:
+                name = guild.get_member(int(id)).name
             self.content = re.sub(mention, f'@{name}', self.content)
 
     
