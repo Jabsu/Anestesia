@@ -4,6 +4,7 @@ import time
 import logging as log
 import json
 import random
+from difflib import SequenceMatcher
 from timeit import default_timer as timer
 from datetime import datetime
 from collections import OrderedDict
@@ -273,13 +274,13 @@ class Main:
         
         self.epoch = int(time.time())
         
-        # Spam precaution
-        if self.epoch - prev_msg_epoch < 5 or prev_msg == msg:
-            return
-
         stripped = re.sub('https?[^ ]+', '', msg)
         words = len(set(re.findall('[a-ö]{4,}', stripped, re.I)))
-        # Another spam precaution
+        
+        # Spam precautions
+        similarity = SequenceMatcher(None, prev_msg, msg).ratio()
+        if self.epoch - prev_msg_epoch < 5 or similarity > 0.75:
+            return
         if words > 150:
             log.debug(
                 '%s wrote a message with %s unique words. Possibly spam.', self.message.author.name, words)
