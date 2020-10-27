@@ -4,10 +4,7 @@
 - ✅ Refaktorointi ja discord.py 1.0 -migraatio
 - ✅ Tapahtumalokitallennus
 - ✅ Päivitysnotifikaattori (feedgasm.py: ATOM-tuki)
-- ⬜ Ajastetut tehtävät: tuki kellonajoille
-- ⬜ Keskustelulokitallennus mIRC-/irssi-formaatissa (pisg ja mIRCStats 🖐🏼)
-- ⬜ Uudistettu käyttäjäasetustietokanta
-
+- ✅ Ajastetut tehtävät: tuki kellonajoille
 
 
 ## Komponentit
@@ -24,12 +21,12 @@
         - ✅ Keskustelulokitallennus mIRC-formaatissa
         - ⬜ Tietokanta
             - ⬜ Rivien tallentaminen 
-            - ⬜ Sanojen määrän seuraaminen
             - ⬜ Ehkä: paikallaoloaikakirjanpito
-        - ⬜ Sanojen määrään perustuvat tasot ilmotuksineen ja rooleineen
-            - ⬜ Ilmoitukset (embedinä, sisältäen käyttäjän profiilikuvan)
-            - ⬜ Roolitukset
-        - ⬜ Wiki
+        - ✅ Sanojen määrän seuraaminen
+        - ✅ Sanojen määrään perustuvat tasot ilmotuksineen ja rooleineen
+            - ✅ Ilmoitukset (embedinä, sisältäen käyttäjän profiilikuvan)
+            - ✅ Roolitukset
+        - ✅ Wiki
     - *feedgasm.py* 
         - ✅ Kanavahistoriavertailun korvaaminen SQLite-tietokannalla
         - ✅ Väriasetus

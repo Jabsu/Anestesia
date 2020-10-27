@@ -10,19 +10,21 @@ Suomenkielisillä toiminnallisuuksilla turboahdettu modulaarinen Discord-botti, 
 
 
 ## Komponentit
-- *feedgasm.py*: 
+- [feedgasm.py](https://github.com/Jabsu/Anestesia/wiki#feedgasmpy): 
     - Nuuskii Internetin syövereiden vuolaita virtoja ja poimii näistä uusimmat julkaisut halutuille kanaville
-- *triggers.py*:
+    - Tuetut feedit: Helsingin Sanomien sarjakuvasivut, Atom-feedit, bigbrother.fi/uutiset
+- [triggers.py](https://github.com/Jabsu/Anestesia/wiki#triggerspy):
     - Aseta regex-triggereitä, joihin botti reagoi (satunnaisella) emojilla, kuvalla/GIF:illä tai tekstillä listasta tai tiedostosta (lokaali/url)
-- *chat_log.py*: 
+- [chat_log.py](https://github.com/Jabsu/Anestesia/wiki#chat_logpy): 
     - Keskustelulokitallennus mIRC-formaatissa (pisg ja mIRCStats 🖐🏼)
-    - Tulossa: sanamääriin perustuvat tasot, tasokohtaiset roolitukset, regex-lokihaku jne.
+    - Regex-lokihaku 
+    - Sanamääriin perustuvat tasot ja tasokohtaiset roolitukset ilmoituksineen
 - Tulossa olevat komennot ja toiminnot: 
     - Säät ja kelit käyttäjäasetuksineen
     - Välimatkat, reitit
     - Ajastin
     - Urbaani Sanakirja -haku (+ potentiaalisesti muita sanakirjahakuja)
-    - Steam-haku, monipuolisemmat Steam-embedit (IsThereAnyDeal- ja DLCompare-hinnat)
+    - Steam-haku, monipuolisemmat Steam-embedit (IsThereAnyDeal- ja AllKeyShop-hintavertailut)
     - Nukkumaanmeno- ja heräämiskomennot
     - Pakollinen kissakomento
 
