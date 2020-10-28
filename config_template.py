@@ -83,6 +83,12 @@ CHAT_LOG_NICK_PREFIXES = {
     'default': ' ',
 }
 
+# Tasoilmoitukset käytössä
+CHAT_LOG_LEVELING_SPAM = True
+
+# Tasoilmoituskanava ('' = ilmoitus tulee sille kanavalle, missä viesti on lähetetty)
+CHAT_LOG_LEVELING_CHAN = ''
+
 # Laskukaava vaadittavien sanojen määrälle per taso
 CHAT_LOG_XP_FORMULA = '250 * (level ** 2) - (250 * level)'
 

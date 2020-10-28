@@ -232,9 +232,16 @@ class Main:
             
         self.level_up_epoch = self.epoch
             
-        await self.message.channel.send(embed=embed)
-        
-
+        if config.CHAT_LOG_LEVELING_SPAM:
+            if not config.CHAT_LOG_LEVELING_CHAN: 
+                await self.message.channel.send(embed=embed)
+            else:
+                chan = self.client.get_channel(int(config.CHAT_LOG_LEVELING_CHAN))
+                if chan:
+                    await chan.send(embed=embed)
+                else:
+                    log.error("I wasn't able to send a level up message to the channel you have set.")
+                    
             
         self.awarded_role = role_obj.id
             
