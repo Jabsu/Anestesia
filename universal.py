@@ -15,7 +15,8 @@ def init():
         first_run = True
         
     commands = {}
-    patterns = {'.*': {}}
+    # §all§ includes messages with just embeds (images, files, etc.)
+    patterns = {'.*': {}, '§all§': {}}
     timers = {}
     statuses = {}
     schedules = {}

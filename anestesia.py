@@ -72,10 +72,10 @@ class Bot(discord.Client):
             return
         
         words = message.content.split()
-        try:
+        if words: 
             cmd = words[0]
-        except:
-            return
+        else:
+            cmd = None
         
         if cmd == '!pull':
             if message.author.id != int(config.OWNER): 
@@ -163,34 +163,32 @@ class Bot(discord.Client):
                 return
         
             mod, met = universal.commands[cmd]
-            mod = importlib.import_module(mod)
-            cls = getattr(mod, 'Main')
-            cls = cls(message=message)
-            met = getattr(cls, met)
-            results = await met()
+            self.call_component_methods(mod, met, message=message)
         
         else: 
+            '''Regex patterns and methods.'''
             for pattern, values in universal.patterns.items():
                 if values:
                     for mod, met in values.items():
                         if met and re.search(pattern, message.content, flags=re.I):
-                            mod = importlib.import_module(mod)
-                            cls = getattr(mod, 'Main')
-                            cls = cls(message=message)
-                            met = getattr(cls, met)
-                            results = await met()
+                            await self.call_component_methods(mod, met, message=message)
+                        elif pattern == '§all§':
+                            await self.call_component_methods(mod, met, message=message)
+                            
+                            
+    async def call_component_methods(self, component, method, **kwargs):
+        mod = importlib.import_module(component)
+        cls = getattr(mod, 'Main')
+        cls = cls(**kwargs)
+        met = getattr(cls, method)
+        results = await met()
     
     
     async def on_member_update(self, before, after):
         '''React to status changes.'''
-        
         for mod, met in universal.statuses.items():
-            mod = importlib.import_module(mod)
-            cls = getattr(mod, 'Main')
-            cls = cls(before=before, after=after)
-            met = getattr(cls, met)
-            results = await met()
-    
+            await self.call_component_methods(mod, met, before=before, after=after)
+            
 universal.client = Bot()
 client = universal.client
 client.initialize_logging()
