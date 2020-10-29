@@ -49,7 +49,7 @@ class Main:
     async def message_handler(self):
         if self.message.author.bot:
             return
-        self.content = str(self.message.content)
+        self.content = str(self.message.clean_content)
         self.chan = self.message.channel
         self.guild = self.message.guild
         gid = str(self.guild.id)
@@ -66,7 +66,7 @@ class Main:
         
         if self.server['database']:
             await self.database_handler()
-        if self.server['log_file'] and self.message.content:
+        if self.server['log_file']:
             await self.mirc_formatter()
         
         await self.count_words()
@@ -317,12 +317,16 @@ class Main:
     async def mirc_formatter(self):
         self.role_ids = [str(y.id) for y in self.message.author.roles]
         self.set_prefix()
-        self.sanitize_mentions()
+        # self.sanitize_mentions()
         timestamp = time.strftime("%H:%M", time.localtime())
         name = self.clean_illegal_chars(self.message.author.name)
-        for msg in self.content.split('\n'):
-            if msg:
+        if self.message.content:
+            for msg in self.content.split('\n'):
                 output = f"[{timestamp}] <{self.prefix}{name}> {msg}\n"
+                await self.write_to_file(output)
+        elif self.message.attachments:
+            for att in self.message.attachments:
+                output = f"[{timestamp}] <{self.prefix}{name}> {att.url}\n"
                 await self.write_to_file(output)
     
     
