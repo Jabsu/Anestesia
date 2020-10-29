@@ -1,9 +1,11 @@
 import os
+import sys
 import re
 import time
 import logging as log
 import json
 import random
+import importlib
 from difflib import SequenceMatcher
 from timeit import default_timer as timer
 from datetime import datetime
@@ -14,8 +16,11 @@ import discord
 
 import config
 import universal
+from .db_handling import DatabaseHandling
 
-universal.patterns['.*']['mods.chat_log.main'] = 'message_handler'
+importlib.reload(sys.modules['mods.chat_log.db_handling'])
+
+universal.patterns['§all§']['mods.chat_log.main'] = 'message_handler'
 universal.statuses['mods.chat_log.main'] = 'status_handler'
 universal.commands['!loki'] = ('mods.chat_log.main', 'log_search')
 universal.commands['!lokir'] = ('mods.chat_log.main', 'log_search_reversed')
@@ -61,7 +66,7 @@ class Main:
         
         if self.server['database']:
             await self.database_handler()
-        if self.server['log_file']:
+        if self.server['log_file'] and self.message.content:
             await self.mirc_formatter()
         
         await self.count_words()
@@ -102,8 +107,9 @@ class Main:
     
     
     async def database_handler(self):
-        pass
-    
+        db = DatabaseHandling(client=self.client)
+        db.insert_message(message=self.message, table=self.message.channel.id)
+        db.close()
     
     async def read_userfile(self):
         file = os.path.join(os.path.dirname(__file__), 'users.json')
@@ -315,8 +321,9 @@ class Main:
         timestamp = time.strftime("%H:%M", time.localtime())
         name = self.clean_illegal_chars(self.message.author.name)
         for msg in self.content.split('\n'):
-            output = f"[{timestamp}] <{self.prefix}{name}> {msg}\n"
-            await self.write_to_file(output)
+            if msg:
+                output = f"[{timestamp}] <{self.prefix}{name}> {msg}\n"
+                await self.write_to_file(output)
     
     
     def set_prefix(self):
@@ -364,11 +371,11 @@ class Main:
             name = False
             id = re.search('[0-9]+', mention)[0]
             if mention.startswith('<@&'):
-                name = guild.get_role(id).name
+                name = guild.get_role(int(id))
             elif mention.startswith('<@!'):
-                name = guild.get_member(id).name
+                name = guild.get_member(int(id))
             if name:
-                self.content = re.sub(mention, f'@{name}', self.content)
+                self.content = re.sub(mention, f'@{name.name}', self.content)
 
     
     async def status_handler(self):
@@ -389,7 +396,6 @@ class Main:
     
     def utc_to_local(self, utc):
         '''Convert datetime from UTC to local timezone.'''
-        
         epoch = time.mktime(utc.timetuple())
         offset = datetime.fromtimestamp (epoch) - datetime.utcfromtimestamp (epoch)
         return utc + offset
