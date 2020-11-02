@@ -24,7 +24,11 @@ class Database:
     def alter(self, code, params=None):
         ret = self.execute(code, params)
         if not ret:
-            self.conn.commit()
+            try:
+                self.conn.commit()
+            except sqlite3.OperationalError as e:
+                log.error('%s: SQLite error: %s', self.db, e)
+                
         return ret
         
     
@@ -76,13 +80,16 @@ class Fetch:
         except:
             self.allow_redirects = True
         
+        self.content = None
+        
       
     async def cook(self, **kwargs):
         try:
             parser
         except:
             parser = 'html.parser'
-        return bs(self.content, parser)
+        if self.content:
+            return bs(self.content, parser)
     
     
     def set_cookies(self):

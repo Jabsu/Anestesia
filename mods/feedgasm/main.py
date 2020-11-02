@@ -186,6 +186,8 @@ class Main():
         
         log.debug('Requesting %s', self.url)
         soup = await self.make_soup()
+        if not soup:
+            return
         items = soup.find_all('article')
                 
         if not items: 
@@ -195,7 +197,8 @@ class Main():
         for item in items:
             href = 'https://www.bigbrother.fi' + item.find('a').get('href')
             soup = await self.make_soup(url=href)
-            
+            if not soup:
+                continue
             try:
                 title = soup.find('meta', property='og:title').get('content')
                 # title = title.replace('"', "”")
