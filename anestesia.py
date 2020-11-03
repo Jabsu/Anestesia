@@ -163,10 +163,10 @@ class Bot(discord.Client):
                 return
         
             mod, met = universal.commands[cmd]
-            self.call_component_methods(mod, met, message=message)
+            await self.call_component_methods(mod, met, message=message)
         
         else: 
-            '''Regex patterns and methods.'''
+            # Regex patterns.
             for pattern, values in universal.patterns.items():
                 if values:
                     for mod, met in values.items():

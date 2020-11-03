@@ -3,6 +3,7 @@ __pycache__/
 venv/
 *.log
 *.db
+*.db-journal
 *.json
 testing.py
 config.py

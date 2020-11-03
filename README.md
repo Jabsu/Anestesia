@@ -16,7 +16,7 @@ Suomenkielisillä toiminnallisuuksilla turboahdettu modulaarinen Discord-botti, 
 - [triggers.py](https://github.com/Jabsu/Anestesia/wiki#triggerspy):
     - Aseta regex-triggereitä, joihin botti reagoi (satunnaisella) emojilla, kuvalla/GIF:illä tai tekstillä listasta tai tiedostosta (lokaali/url)
 - [chat_log.py](https://github.com/Jabsu/Anestesia/wiki#chat_logpy): 
-    - Keskustelulokitallennus mIRC-formaatissa (pisg ja mIRCStats 🖐🏼)
+    - Keskustelulokitallennus SQLite-tietokantaan ja mIRC-formaatissa (pisg ja mIRCStats 🖐🏼)
     - Regex-lokihaku 
     - Sanamääriin perustuvat tasot ja tasokohtaiset roolitukset ilmoituksineen
 - Tulossa olevat komennot ja toiminnot: 

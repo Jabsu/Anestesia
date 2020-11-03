@@ -19,14 +19,14 @@
 - Työn alla
     - *chat_log.py*
         - ✅ Keskustelulokitallennus mIRC-formaatissa
-        - ⬜ Tietokanta
-            - ⬜ Rivien tallentaminen 
+        - ✅ Tietokanta
+            - ✅ Rivien tallentaminen reaaliajassa ja retrospektiivisesti
             - ⬜ Ehkä: paikallaoloaikakirjanpito
         - ✅ Sanojen määrän seuraaminen
         - ✅ Sanojen määrään perustuvat tasot ilmotuksineen ja rooleineen
             - ✅ Ilmoitukset (embedinä, sisältäen käyttäjän profiilikuvan)
             - ✅ Roolitukset
-        - ✅ Wiki
+            - ✅ Serverikohtaiset asetukset
     - *feedgasm.py* 
         - ✅ Kanavahistoriavertailun korvaaminen SQLite-tietokannalla
         - ✅ Väriasetus
