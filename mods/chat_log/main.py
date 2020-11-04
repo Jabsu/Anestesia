@@ -22,11 +22,16 @@ from helpers import Database
 
 universal.patterns['§all§']['mods.chat_log.main'] = 'message_handler'
 universal.statuses['mods.chat_log.main'] = 'status_handler'
-universal.commands['!loki'] = ('mods.chat_log.main', 'log_search')
-universal.commands['!lokir'] = ('mods.chat_log.main', 'log_search_reversed')
 
-# Admin command
-universal.commands['!historia'] = ('mods.chat_log.main', 'save_channel_history')
+# Commands
+this = 'mods.chat_log.main'
+universal.commands['!loki'] = (this, 'log_search')
+universal.commands['!lokir'] = (this, 'log_search_reversed')
+universal.commands['!taso'] = (this, 'show_my_level')
+universal.commands['!tasot'] = (this, 'show_top_list')
+
+# Admin commands
+universal.commands['!historia'] = (this, 'save_channel_history')
 
 settings = {
     'method': 'add_session_time',
@@ -78,6 +83,139 @@ class Main:
         
         await self.count_words(message=self.message)
         
+        
+    async def show_my_level(self):
+        user_data = await self.read_userfile()
+        gid = str(self.message.guild.id)
+        if not user_data:
+            await self.message.channel.send('Ei olemassa olevia käyttäjätietoja.')
+            return
+        try:
+            user_data[gid]
+        except KeyError:
+            await self.message.channel.send('Tällä serverillä ei ole käyttäjätietoja.')
+            return
+        
+        uid = str(self.message.author.id)
+        cid = str(self.message.channel.id)
+        self.guild = self.message.guild
+        self.chan = self.message.channel
+        
+        self.config_classes(gid)
+        
+        try:
+            level = user_data[gid][uid]['level']
+        except KeyError:
+            await self.message.channel.send('Sano ensin jotain.')
+            return
+        words = user_data[gid][uid]['word_count']
+        lvl_up = user_data[gid][uid]['prev_lvl_up_epoch']
+        if lvl_up:
+            date = datetime.fromtimestamp(user_data[gid][uid]['prev_lvl_up_epoch']).strftime('%d/%m/%Y')
+        db = DatabaseHandling(client=self.client, db=self.file_naming('db'))
+        sql = f"SELECT created_at, jump_url FROM '{cid}' WHERE author_id IS '{uid}' ORDER BY created_at ASC LIMIT 1"
+        try:
+            first_msg, jump_url = db.retrieve(sql)[0]
+        except IndexError:
+            first_msg = False
+        db.close()
+        if first_msg: 
+            try:
+                first_msg = datetime.strptime(first_msg, '%Y-%m-%d %H:%M:%S').strftime('%d/%m%/Y')
+            except ValueError:
+                first_msg = datetime.strptime(first_msg, '%Y-%m-%d %H:%M:%S.%f').strftime('%d/%m/%Y')
+        
+        role = self.message.author.roles[-1]
+        try:
+            color = role.color
+        except:
+            color = None
+        
+        embed = discord.Embed(title=self.message.author.name, color=color)
+        embed.add_field(name='Sanojen määrä', value='{:,}'.format(words).replace(',', ' '))
+        if lvl_up:
+            embed.add_field(name='Taso saavutettu', value=date)
+        color_hex = str(color).replace('#', '')
+        embed.set_thumbnail(url=f'https://dummyimage.com/100x100/2F3136/{color_hex}.png&text={level}')
+        
+        if self.server_config.CHAT_LOG_LEVELS_JUMP_URLS and first_msg:
+            value = f'[{first_msg}]({jump_url})'
+        elif first_msg:
+            value = first_msg 
+        if first_msg:
+            embed.add_field(name='Ensimmäinen viesti', value=value)
+        
+        await self.message.channel.send(embed=embed)
+        
+        
+    async def show_top_list(self):
+        gid = str(self.message.guild.id)
+        cid = str(self.message.channel.id)
+        if len(self.message.content.split()) > 1:
+            cid = str(self.message.content.split()[1])
+        user_data = await self.read_userfile()
+        self.guild = self.message.guild
+        self.chan = self.message.channel
+        if not user_data:
+            await self.message.channel.send('Ei olemassa olevia käyttäjätietoja.')
+            return
+        try:
+            user_data[gid]
+        except KeyError:
+            await self.message.channel.send('Tällä serverillä ei ole käyttäjätietoja.')
+            return
+        
+        self.config_classes(gid)
+        embed = discord.Embed(title='Vuolaimmat keskustelijat')
+        placement = 1
+        sql = "SELECT created_at, jump_url FROM '{}' WHERE author_id IS '{}' ORDER BY created_at ASC LIMIT 1"
+        db = DatabaseHandling(client=self.client, db=self.file_naming('db'))
+        ordered = OrderedDict()
+        for user, values in user_data[gid].items():
+            lvl = values['level']
+            ordered[lvl] = values
+            ordered[lvl]['user'] = user
+        
+        for level, values in reversed(sorted(ordered.items())):
+            if placement > self.server_config.CHAT_LOG_TOP:
+                break
+            level = values['level']
+            word_count = values['word_count']
+            if placement == 1:
+                suffix = ' \👑'
+            else:
+                suffix = ''
+                
+            if values['user_name'] == 'Deleted User':
+                user = '*poistettu käyttäjä*'
+            else:
+                user = values['user_name']
+            embed.add_field(name=f'Taso **{level}**{suffix}', value=user, inline=True)
+            try:
+                first_msg, jump_url = db.retrieve(sql.format(cid, values['user']))[0]
+            except IndexError:
+                first_msg = False
+            else:
+                try:
+                    first_msg = datetime.strptime(first_msg, '%Y-%m-%d %H:%M:%S').strftime('%d/%m%/Y')
+                except ValueError:
+                    first_msg = datetime.strptime(first_msg, '%Y-%m-%d %H:%M:%S.%f').strftime('%d/%m/%Y')
+                if self.server_config.CHAT_LOG_LEVELS_JUMP_URLS and first_msg:
+                    value = f'[{first_msg}]({jump_url})'
+                elif first_msg:
+                    value = first_msg 
+            if not first_msg:
+                value = 'ei tietoa'
+            embed.add_field(name='Ensimmäinen viesti', value=value, inline=True)
+            embed.add_field(name='\u200B', value='\u200B', inline=True)
+            
+            placement += 1
+            
+        db.close()
+            
+        embed.set_thumbnail(url=self.guild.icon_url)
+        await self.chan.send(embed=embed)
+    
     
     def config_classes(self, guild_id):
         '''Set server specific configurations.'''
@@ -752,6 +890,10 @@ class DatabaseHandling(Main):
                     log.info('Altering the table by adding the missing column.')
                     ret = self.db.alter(sql)
                     
+                    
+    def retrieve(self, sql, params=None):
+        return (self.db.retrieve(sql, params))
+    
     
     def close(self):
         self.db.close()

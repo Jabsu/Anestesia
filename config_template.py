@@ -92,6 +92,12 @@ class ChatLogDefaults:
         
         # Tasoilmoitukset käytössä
         self.CHAT_LOG_LEVELING_SPAM = True
+        
+        # Linkki ensimmäiseen viestiin !taso- ja !tasot-komennoissa
+        self.CHAT_LOG_LEVELS_JUMP_URLS = True
+        
+        # Top-listan maksimi
+        self.CHAT_LOG_TOP = 5
 
         # Tasot nousevat retrospektiivisesti, kun kanavan keskusteluhistoria tallennetaan komennolla
         # (Tyhjennä users.json-tiedostossa serverikohtainen sisältö ("server_id": {}) tai poista koko tiedosto ennen tätä, mikäli 
