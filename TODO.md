@@ -22,6 +22,7 @@
         - ✅ Tietokanta
             - ✅ Rivien tallentaminen reaaliajassa ja retrospektiivisesti
             - ⬜ Ehkä: paikallaoloaikakirjanpito
+        - ✅ Lokihaku (mIRC-lokiformaatti ja SQLite)
         - ✅ Sanojen määrän seuraaminen
         - ✅ Sanojen määrään perustuvat tasot ilmotuksineen ja rooleineen
             - ✅ Ilmoitukset (embedinä, sisältäen käyttäjän profiilikuvan)

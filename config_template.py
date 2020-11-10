@@ -90,6 +90,9 @@ class ChatLogDefaults:
         # 'both' = molempiin
         self.CHAT_LOG_HISTORY_SAVED_TO = 'both'
         
+        # Lokihaku (!loki) tietokannasta (db) tai tekstitiedostosta (text)
+        self.CHAT_LOG_SEARCH_METHOD = 'db'
+        
         # Tasoilmoitukset käytössä
         self.CHAT_LOG_LEVELING_SPAM = True
         

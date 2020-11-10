@@ -732,13 +732,80 @@ class Main:
                 'Hienosti! Voit myös koittaa etsiä muutakin kuin tyhjyyttä: `!loki (§nick) <regex-haku>`')
             return
         if words[1].startswith('§'):
-            msg_pattern = '\[[0-9]+:[0-9]+\] <([0-9]+|)[^a-ö0-9]?{}([^>]+>|>) (.*)'.format(words[1].replace('§', ''))
+            user = words[1].replace('§', '')
+            msg_pattern = f'\[[0-9]+:[0-9]+\] <([0-9]+|)[^a-ö0-9]?{user}([^>]+>|>) (.*)'
             msg = ' '.join(words[2:])
         else:
+            user = None
             msg_pattern = '\[[0-9]+:[0-9]+\] <([0-9]+|)[^a-ö0-9]?([^>]+)> (.*)'
             msg = ' '.join(words[1:])
+        
         self.chan = self.message.channel
         self.guild = self.message.channel.guild
+        
+        self.config_classes(str(self.guild.id))
+        if self.server_config.CHAT_LOG_SEARCH_METHOD == 'db':
+            if reversing:
+                sort_order = 'DESC'
+            else:
+                sort_order = 'ASC'
+            await self.db_log_search(msg, user, sort_order)
+        else:
+            await self.mirc_log_search(msg, msg_pattern)
+            
+            
+    async def db_log_search(self, regex, user, sort_order):
+        cid = str(self.message.channel.id)
+        db = DatabaseHandling(client=self.client, db=self.file_naming('db'), regex_function=True)
+        # limit = 10
+        
+        if user:
+            sql = f'''
+            SELECT clean_content as C, author_name as U, created_at, jump_url FROM '{cid}' 
+            WHERE U IS ? COLLATE NOCASE AND lower(C) REGEXP ? ORDER BY created_at {sort_order}'''
+            ret = db.retrieve(sql, [user, regex])
+        else:
+            sql = f'''
+            SELECT clean_content as C, author_name, created_at, jump_url FROM '{cid}' 
+            WHERE lower(C) REGEXP ? ORDER BY created_at {sort_order}'''
+            ret = db.retrieve(sql, [regex])
+        
+        db.close()
+        
+        if ret and type(ret) is list:
+            
+            total_lines = len(ret)
+            line_count = 0
+            lines = ''
+            if sort_order == 'ASC':
+                suffix = 'vanhimmasta uusimpaan'
+            else:
+                suffix = 'uusimmasta vanhimpaan'
+            
+            for values in ret:
+                msg, author, date, url = values
+                msg = textwrap.shorten(msg, width=200, placeholder='…').replace('`', "'")
+                try:
+                    strptime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S.%f')
+                except ValueError:
+                    strptime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+                date = datetime.strftime(self.utc_to_local(strptime), '[%d/%m/%y]')
+                line = f'[{date}]({url}) <**{author}**> {msg}\n'
+                if len(lines+line) >= 2020: 
+                    break
+                else:
+                    lines += line
+                    line_count += 1
+                
+            embed = discord.Embed(title=f'Hakutulokset ({line_count}/{total_lines}) {suffix}', description=lines)
+            await self.chan.send(embed=embed)
+        
+        elif type(ret) is str:
+            await self.chan.send('Pahoittelen, mutta tällä kanavalla on liian synkkä historia.')
+        else:
+            await self.chan.send('Voi kun joku olisikin joskus sanonut jotain noin kaunista.')
+
+    async def mirc_log_search(self, msg, msg_pattern):
         filename = self.file_naming()
         user_pattern = msg
         session_time_pattern = '^Session Time: (.*)'
@@ -799,7 +866,7 @@ class Main:
 
 class DatabaseHandling(Main):
     
-    def __init__(self, client=None, db=None):
+    def __init__(self, client=None, db=None, regex_function=False):
         if client:
             self.client = client
         self.db = Database(db=db)
@@ -822,13 +889,21 @@ class DatabaseHandling(Main):
             'jump_url': 'TEXT',
         }
         self.db_name = db
-
+        if regex_function:
+            self.db.conn.create_function('REGEXP', 2, self.regexp)
+    
+    
+    def regexp(self, expr, item):
+        reg = re.compile(expr.lower())
+        return reg.search(item) is not None            
+    
     
     def drop_table(self, table):
         log.info("%s: Dropping table (if exists) %s.", self.db_name, table)
         sql = f'DROP TABLE if exists "{table}"'
         self.db.alter(sql)
         
+    
     def create_table(self, table):
         log.info("%s: Attempting to create table %s.", self.db_name, table)
         columns = 'id INTEGER PRIMARY KEY'
